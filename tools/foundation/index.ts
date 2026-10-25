@@ -40,3 +40,6 @@ export function writeFoundation(project: string, options: Options = {}) {
 }
 
 export { createAnswersTemplate, writeAnswersTemplate } from "./answers.js";
+
+export { buildTokenGraph, redundantAliasIds } from "./graph.js";
+export type * from "./graph.js";

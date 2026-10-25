@@ -23,6 +23,7 @@ export interface FoundValue {
   source: Location;
   supported: boolean;
   origin: "css" | "tailwind-theme";
+  ancestors?: string[];
 }
 export interface Choice {
   value?: Scalar;
@@ -60,6 +61,8 @@ export interface Analysis {
   ok: boolean;
   inputHash: string;
   scope: string[];
+  graph: import("./graph.js").TokenGraph;
+  aliasDecisionReduction: Array<{id: string; sourceIds: string[]; reason: string}>;
   found: FoundValue[];
   mappings: Mapping[];
   manual_decisions: Decision[];

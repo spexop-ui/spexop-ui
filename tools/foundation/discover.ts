@@ -148,6 +148,12 @@ export function discover(project: string, options: Options = {}) {
             fix: "Supply a literal or a simple var(--name) alias in a supported token source.",
           });
         }
+        const ancestors: string[] = [];
+        let ancestor = parent?.parent;
+        while (ancestor && ancestor.type !== "root") {
+          ancestors.push(ancestor.type === "atrule" ? `@${ancestor.name} ${ancestor.params}` : ancestor.type === "rule" ? ancestor.selector : ancestor.type);
+          ancestor = ancestor.parent;
+        }
         found.push({
           id: `${file}:${source.line}:${source.column}:${decl.prop}`,
           variable: decl.prop,
@@ -157,6 +163,7 @@ export function discover(project: string, options: Options = {}) {
           source,
           supported,
           origin: theme ? "tailwind-theme" : "css",
+          ancestors,
         });
       });
     } catch (error) {

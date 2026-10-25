@@ -1,6 +1,6 @@
 # Design Foundation discovery & onboarding — bounded development tool
 
-SPX-OSS-005C. A local, single-purpose module over the existing Theme API. Not a new npm package, general CLI framework, project refactorer or trusted UI verifier. Theme source is unchanged.
+SPX-OSS-005D. A local, single-purpose module over the existing Theme API. Not a new npm package, general CLI framework, project refactorer or trusted UI verifier. Theme source is unchanged.
 
 ## Quickstart
 
@@ -72,6 +72,18 @@ The prior React/Tailwind wiring is already present. Two onboarding files were ch
 After `pnpm build`, import `analyzeProject` or explicit `writeFoundation` from `tools/foundation/dist/index.js`. Both take a project directory and `Options`; neither needs a browser, service or private backend. Root `pnpm check` builds Theme + tool, typechecks implementation/tests, lints and runs Theme regressions + onboarding tests. Existing private PR CI uses the same check. Independent output tests use the already installed PostCSS and Terrazzo parser; no new external dependency was added.
 
 Sources: [PostCSS parsing/source positions](https://postcss.org/api/), [Tailwind theme variables](https://tailwindcss.com/docs/theme). This is an M3 development slice; M4 hardcoded-style detection and M8 public/npm release remain separate.
+
+## Canonical Token Graph (schemaVersion 1)
+
+The report now includes `graph` and `aliasDecisionReduction`. `graph.nodes` retains **every** inventoried declaration, even unsupported ones. A node is a literal source, a single `var(--name)` alias, or a derived expression. Its context records selector, light/dark/shared mode, Tailwind origin, ancestor scopes and support status. Provenance is the original file, line and column. A declaration ID never stands for multiple selectors.
+
+`graph.resolutions` records per-mode direct target IDs, resolution status and terminal `canonicalSourceId` when known. Follow direct edges to reconstruct the complete reference chain. Tailwind exports are resolved for light and dark separately; dark lookup can fall back to a light declaration, but this is **conditional model resolution, not proof of CSS computed-value inheritance or active imports**. Multiple applicable declarations remain ambiguous. Missing targets, cycles, fallback expressions, calculations and unsupported scopes never become invented literal values. Derived expressions retain references for inspection but are not evaluated.
+
+`candidates` are explicitly `proposed` with `name-rule` evidence. They are not verified UI semantics. Source roles without a convention still require a mapping decision. `graph.uncertainties` distinguishes reference failure, unsupported evaluation and unknown semantic role; a source/graph repair is not disguised as a scalar answer. The existing `manual_decisions` remains the authoritative list of answers needed by the Theme projection; its unresolved entries block outputs. Generation still uses the original Theme validators and generators.
+
+Resolved aliases without a competing known role are grouped with their canonical source instead of creating another independent scalar decision. Known aliases proposing the same role as their root no longer cause artificial mapping conflicts. A different known role, duplicate real declarations, unresolved reference or explicit existing answer stays subject to the existing checks. `aliasDecisionReduction` lists every grouped alias and its source IDs. Grouping does **not** claim that an unknown alias has a verified semantic role, that original CSS exports will be regenerated, or that source tokens may be deleted. The graph retains those relationships for inspection; Foundation outputs remain the Theme model's namespace. Existing explicit alias answers remain supported.
+
+There is no project-name detection, graph database, new package or alternate output generator. DTCG **input** is not yet a graph adapter; the existing Theme DTCG output/round-trip subset is unchanged. Full cascade, layer ordering, import graphs and runtime styles remain outside this slice. The raw `found` inventory and historical decision counts remain available for comparison; a reduced duplicate count is not user acceptance.
 
 ## Defaults policy evidence
 

@@ -8,6 +8,7 @@ import {
   type SpexopThemeConfig,
 } from "@spexop/theme";
 import { defaultRules } from "./defaults.js";
+import { buildTokenGraph, redundantAliasIds } from "./graph.js";
 import { discover } from "./discover.js";
 import type {
   Analysis,
@@ -116,6 +117,16 @@ export function analyzeProject(
 ): Analysis {
   const discovery = discover(project, options),
     { found, diagnostics, inputHash, scope } = discovery;
+  const graph = buildTokenGraph(found, targetFor);
+  const redundant = redundantAliasIds(graph);
+  const canonicalSources = new Map<string, Set<string>>();
+  for (const r of graph.resolutions) if (r.canonicalSourceId) {
+    const sources = canonicalSources.get(r.nodeId) ?? new Set<string>();
+    sources.add(r.canonicalSourceId); canonicalSources.set(r.nodeId, sources);
+  }
+  const aliasDecisionReduction = [...redundant].map(id => ({id,
+    sourceIds: [...(canonicalSources.get(id) ?? [])],
+    reason: "Resolved alias relationship retained in graph; not a new independent scalar or duplicate mapping decision."}));
   diagnostics.push({
     code: "DISCOVERY_SCOPE",
     severity: "info",
@@ -165,7 +176,7 @@ export function analyzeProject(
     target: string;
     method: "name-rule" | "user";
   }> = [];
-  for (const v of found.filter((x) => x.supported)) {
+  for (const v of found.filter((x) => x.supported && (!redundant.has(x.id) || Object.hasOwn(choices, `map:${x.id}`)))) {
     let target = targetFor(v),
       method: "name-rule" | "user" = "name-rule";
     if (!target) {
@@ -629,6 +640,8 @@ export function analyzeProject(
     ok: !blocked() && outputs.length === 3,
     inputHash,
     scope,
+    graph,
+    aliasDecisionReduction,
     found,
     mappings,
     manual_decisions: decisions,
