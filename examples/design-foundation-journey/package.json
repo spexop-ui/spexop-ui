@@ -1,0 +1,27 @@
+{
+  "name": "spexop-design-foundation-acceptance-fixture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "theme": "node scripts/generate.mjs",
+    "faults": "node scripts/faults.mjs",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run theme && npm run typecheck && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4325",
+    "dev": "npm run theme && vite --host 127.0.0.1 --port 4325"
+  },
+  "dependencies": {
+    "@spexop/theme": "file:./artifacts/spexop-theme-0.7.0-alpha.0.tgz",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "vite": "8.3.5",
+    "typescript": "5.9.3",
+    "tailwindcss": "4.3.3",
+    "@types/react": "18.3.28",
+    "@types/react-dom": "18.3.7",
+    "@tailwindcss/vite": "4.3.3"
+  }
+}

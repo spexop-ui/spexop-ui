@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "name": "Fieldwork acceptance",
+    "version": "0.1.0"
+  },
+  "colors": {
+    "primary": "#2563eb",
+    "surface": "#ffffff",
+    "surfaceSecondary": "#f1f5f9",
+    "surfaceHover": "#e2e8f0",
+    "text": "#0f172a",
+    "textSecondary": "#475569",
+    "textMuted": "#475569",
+    "border": "#cbd5e1",
+    "borderStrong": "#64748b",
+    "borderSubtle": "#e2e8f0",
+    "link": "{colors.primary}"
+  },
+  "typography": {
+    "fontFamily": "system-ui, sans-serif",
+    "baseSize": 16,
+    "scale": 1.25,
+    "weights": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "lineHeights": {
+      "tight": 1.2,
+      "snug": 1.375,
+      "normal": 1.5,
+      "relaxed": 1.75
+    }
+  },
+  "spacing": {
+    "baseUnit": 4,
+    "values": {
+      "0": 0,
+      "1": 4,
+      "2": 8,
+      "4": 16,
+      "6": 24
+    }
+  },
+  "borders": {
+    "thin": 1,
+    "default": 1,
+    "thick": 2,
+    "radiusSubtle": 8,
+    "radiusRelaxed": 8,
+    "radiusPill": 9999,
+    "defaultStyle": "solid"
+  },
+  "darkMode": {
+    "enabled": true,
+    "colors": {
+      "primary": "#60a5fa",
+      "surface": "#0f172a",
+      "surfaceSecondary": "#1e293b",
+      "surfaceHover": "#334155",
+      "text": "#f8fafc",
+      "textSecondary": "#cbd5e1",
+      "textMuted": "#94a3b8",
+      "border": "#475569",
+      "borderStrong": "#94a3b8",
+      "borderSubtle": "#334155",
+      "link": "{colors.primary}"
+    }
+  }
+}
