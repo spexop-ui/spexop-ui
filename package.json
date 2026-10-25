@@ -1,0 +1,27 @@
+{
+  "name": "spexop-ui-workspace",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "pnpm@11.1.2",
+  "engines": {
+    "node": ">=22.13 <27"
+  },
+  "scripts": {
+    "build": "pnpm --filter @spexop/theme build",
+    "typecheck": "tsc --noEmit -p packages/theme/tsconfig.json",
+    "lint": "eslint packages/theme/src packages/theme/test",
+    "test": "vitest run",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "5.0.5",
+    "eslint": "10.13.0",
+    "typescript-eslint": "8.72.0",
+    "@terrazzo/parser": "2.10.0",
+    "tailwindcss": "4.3.3",
+    "postcss": "8.5.31",
+    "@types/node": "22.18.6"
+  }
+}

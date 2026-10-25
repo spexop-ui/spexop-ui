@@ -1,0 +1,38 @@
+{
+  "name": "@spexop/theme",
+  "version": "0.7.0-alpha.0",
+  "private": true,
+  "description": "Design Foundation: validated themes, token references, DTCG and CSS generation",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md",
+    "MIGRATION.md",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.13"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spexop-ui/spexop-ui.git",
+    "directory": "packages/theme"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "colorjs.io": "0.7.1"
+  }
+}
