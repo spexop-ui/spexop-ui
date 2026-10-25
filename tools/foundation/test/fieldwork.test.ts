@@ -32,7 +32,12 @@ it("compares Fieldwork automatic mappings against the unchanged 005A golden prov
     );
     const result = analyzeProject(project, answers);
     expect(result.ok).toBe(true);
-    expect(result.metrics.manualDecisions).toBe(18);
+    expect(result.theme.colors.link).toBe("{colors.primary}");
+    expect(result.theme.darkMode?.colors?.link).toBe("{colors.primary}");
+    expect(
+      result.outputs.find((o) => o.path.endsWith("/theme.css"))?.content,
+    ).toContain("--theme-link:");
+    expect(result.metrics.manualDecisions).toBe(20);
     expect(result.metrics.unresolvedDecisions).toBe(0);
     let correct = 0;
     for (const m of result.mappings.filter((m) => m.method === "name-rule")) {

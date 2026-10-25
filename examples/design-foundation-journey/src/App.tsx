@@ -88,7 +88,14 @@ export default function App() {
   }
   return (
     <div className="shell">
-      <a className="skip-link" href="#content">
+      <a
+        className="skip-link"
+        href="#content"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById("content")?.focus();
+        }}
+      >
         Skip to content
       </a>
       <header className="site-header">

@@ -429,3 +429,63 @@ it("reports equal literal values without collapsing distinct semantic roles", ()
       .map((m) => m.target),
   ).toEqual(["colors.textMuted", "colors.borderStrong"]);
 });
+
+describe("PR review regressions", () => {
+  it("blocks a dark alias when another CSS variable occupies its semantic target", () => {
+    const css = original
+      .replace("--ink: #f8fafc", "--foreground: #f8fafc")
+      .replace("--brand: #60a5fa", "--brand: var(--ink)");
+    const r = accepted(project(css)).result;
+    expect(r.ok).toBe(false);
+    expect(r.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "UNMAPPED_ALIAS",
+        token: "colors.primary",
+        severity: "unsupported",
+      }),
+    );
+  });
+  it("does not rebind an inherited computed light alias in dark mode", () => {
+    const p = project(
+      original
+        .replace("--brand: #2563eb", "--brand: var(--ink)")
+        .replace("  --brand: #60a5fa;", ""),
+    );
+    const { options: o } = accepted(p);
+    o.decisions!["inherit:colors.primary"] = { inherit: true };
+    const r = analyzeProject(p, o);
+    expect(r.ok).toBe(false);
+    expect(
+      r.diagnostics.some((d) => d.code === "ALIAS_INHERIT_UNSUPPORTED"),
+    ).toBe(true);
+  });
+  it("rejects dark spacing overrides instead of silently discarding them", () => {
+    const p = project(),
+      { options: o } = accepted(p);
+    o.decisions!["override:dark.spacing.values.4"] = { value: 20 };
+    const r = analyzeProject(p, o);
+    expect(r.ok).toBe(false);
+    expect(r.diagnostics.some((d) => d.code === "INVALID_DECISION")).toBe(true);
+    expect(
+      r.manual_decisions.find((d) => d.id === "override:dark.spacing.values.4")
+        ?.resolved,
+    ).toBe(false);
+  });
+  it("walks a 5000-node CSS alias chain without recursive stack growth", () => {
+    const chain = Array.from(
+      { length: 5000 },
+      (_, i) =>
+        `--helper-${i}: ${i === 4999 ? "#000" : `var(--helper-${i + 1})`};`,
+    ).join("\n");
+    const r = analyzeProject(project(`:root { ${chain} }`));
+    expect(r.found).toHaveLength(5000);
+    expect(
+      r.diagnostics.some(
+        (d) =>
+          d.code === "ALIAS_MISSING" ||
+          d.code === "ALIAS_CYCLE" ||
+          d.code === "CSS_PARSE",
+      ),
+    ).toBe(false);
+  });
+});

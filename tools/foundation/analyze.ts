@@ -247,53 +247,71 @@ export function analyzeProject(
     );
     if (c) retained.push(group.find((g) => g.found.id === c.source)!);
   }
-  const byVariable = (name: string, mode: Mode) => {
-    const local = found.filter(
-      (x) => x.supported && x.variable === name && x.mode === mode,
-    );
-    return local.length
-      ? local
-      : mode === "dark"
-        ? found.filter(
-            (x) => x.supported && x.variable === name && x.mode === "light",
-          )
-        : [];
-  };
-  // Validate raw CSS alias graph before mapping so excluded/helper values cannot hide broken references.
-  const alias = (value: string) => /^var\(\s*(--[\w-]+)\s*\)$/.exec(value)?.[1];
-  const visitedErrors = new Set<string>();
-  function checkAlias(v: FoundValue, mode: Mode, chain: string[]) {
-    const name = alias(v.value);
-    if (!name) return;
-    const code = chain.includes(name)
-      ? "ALIAS_CYCLE"
-      : byVariable(name, mode).length === 0
-        ? "ALIAS_MISSING"
-        : byVariable(name, mode).length > 1
-          ? "ALIAS_AMBIGUOUS"
-          : undefined;
-    if (code) {
-      const id = `${code}:${v.id}:${mode}`;
-      if (!visitedErrors.has(id)) {
-        visitedErrors.add(id);
-        diagnostics.push({
-          code,
-          severity: "error",
-          token: v.variable,
-          source: v.source,
-          message: `${mode}: ${[...chain, name].join(" → ")}`,
-          fix:
-            code === "ALIAS_MISSING"
-              ? `Define ${name} or correct the reference.`
-              : "Remove the cycle or conflicting declaration; reference one known token.",
-        });
-      }
-      return;
-    }
-    checkAlias(byVariable(name, mode)[0], mode, [...chain, name]);
+  const variables = new Map<string, FoundValue[]>();
+  for (const v of found.filter((x) => x.supported)) {
+    const key = `${v.mode}:${v.variable}`;
+    const group = variables.get(key) ?? [];
+    group.push(v);
+    variables.set(key, group);
   }
-  for (const v of found.filter((x) => x.supported))
-    checkAlias(v, v.mode, [v.variable]);
+  const byVariable = (name: string, mode: Mode) =>
+    variables.get(`${mode}:${name}`) ??
+    (mode === "dark" ? variables.get(`light:${name}`) : undefined) ??
+    [];
+  const alias = (value: string) => /^var\(\s*(--[\w-]+)\s*\)$/.exec(value)?.[1];
+  // Iterative, indexed and memoized: each effective-mode node is walked once.
+  const checked = new Set<string>();
+  function checkAlias(start: FoundValue, mode: Mode) {
+    const trail: FoundValue[] = [],
+      active = new Map<string, number>();
+    let current: FoundValue | undefined = start;
+    while (current) {
+      const key = `${mode}:${current.id}`;
+      if (checked.has(key)) break;
+      if (active.has(key)) {
+        const cycle = trail.slice(active.get(key)).map((v) => v.variable);
+        diagnostics.push({
+          code: "ALIAS_CYCLE",
+          severity: "error",
+          token: current.variable,
+          source: current.source,
+          message: `${mode}: ${cycle.slice(0, 20).join(" → ")}${cycle.length > 20 ? " → …" : ""} → ${current.variable}`,
+          fix: "Break this CSS variable cycle with a literal value.",
+        });
+        break;
+      }
+      active.set(key, trail.length);
+      trail.push(current);
+      const name = alias(current.value);
+      if (!name) break;
+      const next = byVariable(name, mode);
+      if (next.length !== 1) {
+        diagnostics.push({
+          code: next.length ? "ALIAS_AMBIGUOUS" : "ALIAS_MISSING",
+          severity: "error",
+          token: current.variable,
+          source: current.source,
+          message: `${mode}: ${current.variable} → ${name}`,
+          fix: next.length
+            ? "Reference one unambiguous CSS declaration."
+            : `Define ${name} or correct this reference.`,
+        });
+        break;
+      }
+      current = next[0];
+    }
+    for (const node of trail) checked.add(`${mode}:${node.id}`);
+  }
+  for (const v of found.filter((x) => x.supported)) checkAlias(v, v.mode);
+  const mappedVariables = new Map<string, typeof retained>();
+  const mappedSlots = new Map<string, (typeof retained)[number]>();
+  for (const item of retained) {
+    const key = `${item.found.mode}:${item.found.variable}`;
+    const group = mappedVariables.get(key) ?? [];
+    group.push(item);
+    mappedVariables.set(key, group);
+    mappedSlots.set(`${item.found.mode}:${item.target}`, item);
+  }
   const config: Record<string, unknown> = {
     meta: { name: "Discovered foundation", version: "0.0.0" },
     colors: {},
@@ -329,19 +347,25 @@ export function analyzeProject(
     let value = numberOrText(v.value, target);
     const ref = alias(v.value);
     if (ref) {
-      const refs = retained.filter(
-        (x) => x.found.variable === ref && x.found.mode === v.mode,
-      );
-      const effective = refs.length
-        ? refs
-        : retained.filter(
-            (x) => x.found.variable === ref && x.found.mode === "light",
-          );
-      if (
+      const effective =
+        mappedVariables.get(`${v.mode}:${ref}`) ??
+        mappedVariables.get(`light:${ref}`) ??
+        [];
+      const referenced = effective[0];
+      const slot =
+        referenced &&
+        (mappedSlots.get(`${v.mode}:${referenced.target}`) ??
+          mappedSlots.get(`light:${referenced.target}`));
+      const safe =
         effective.length === 1 &&
-        effective[0].target.split(".")[0] === target.split(".")[0]
-      )
-        value = `{${effective[0].target}}`;
+        slot?.found.id === referenced.found.id &&
+        !(
+          v.mode === "dark" &&
+          referenced.found.mode === "light" &&
+          alias(referenced.found.value)
+        );
+      if (safe && referenced.target.split(".")[0] === target.split(".")[0])
+        value = `{${referenced.target}}`;
       else {
         value = undefined;
         diagnostics.push({
@@ -349,8 +373,8 @@ export function analyzeProject(
           severity: "unsupported",
           source: v.source,
           token: target,
-          message: `Alias target ${ref} has no single compatible Theme mapping.`,
-          fix: "Map its source to a compatible token; aliases are never silently flattened.",
+          message: `Alias target ${ref} has no single mode-safe Theme mapping (its semantic slot may represent another CSS variable).`,
+          fix: "Use an unambiguous mapping or an explicit source value; cross-mode alias semantics are never guessed or flattened.",
         });
       }
     } else if (v.value.includes("var(")) {
@@ -444,7 +468,10 @@ export function analyzeProject(
             "User changes a discovered semantic value; no automatic repair.",
         },
         (x) =>
-          (mode === "light" || (mode === "dark" && modes.includes("dark"))) &&
+          (mode === "light" ||
+            (mode === "dark" &&
+              modes.includes("dark") &&
+              target.startsWith("colors."))) &&
           validTarget(target) &&
           (typeof x.value === "string" || typeof x.value === "number"),
       );
@@ -473,6 +500,20 @@ export function analyzeProject(
           },
           (c) => c.inherit === true || typeof c.value === "string",
         );
+        if (
+          c?.inherit === true &&
+          typeof get(config, token) === "string" &&
+          String(get(config, token)).startsWith("{")
+        )
+          diagnostics.push({
+            code: "ALIAS_INHERIT_UNSUPPORTED",
+            severity: "unsupported",
+            token: `dark.${token}`,
+            source: light?.source,
+            message:
+              "Inheriting an alias can rebind to dark tokens instead of inheriting the computed light value.",
+            fix: "Supply an explicit dark value or intentionally define a dark alias instead of inheritance.",
+          });
         inheritance.push({
           token,
           from: "light",

@@ -55,6 +55,12 @@
     },
     "override:light.colors.textMuted": {
       "value": "#475569"
+    },
+    "override:light.colors.link": {
+      "value": "{colors.primary}"
+    },
+    "override:dark.colors.link": {
+      "value": "{colors.primary}"
     }
   }
 }
