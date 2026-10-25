@@ -7,6 +7,7 @@ import {
   generateDTCG,
   type SpexopThemeConfig,
 } from "@spexop/theme";
+import { defaultRules } from "./defaults.js";
 import { discover } from "./discover.js";
 import type {
   Analysis,
@@ -41,27 +42,7 @@ const colors: Record<string, string> = {
   "line-subtle": "borderSubtle",
   link: "link",
 };
-const defaults: Record<string, Scalar> = {
-  "typography.fontFamily": "system-ui, sans-serif",
-  "typography.baseSize": 16,
-  "typography.scale": 1.25,
-  "typography.weights.regular": 400,
-  "typography.weights.medium": 500,
-  "typography.weights.semibold": 600,
-  "typography.weights.bold": 700,
-  "typography.lineHeights.tight": 1.2,
-  "typography.lineHeights.snug": 1.375,
-  "typography.lineHeights.normal": 1.5,
-  "typography.lineHeights.relaxed": 1.75,
-  "spacing.baseUnit": 4,
-  "borders.thin": 1,
-  "borders.default": 1,
-  "borders.thick": 2,
-  "borders.radiusSubtle": 8,
-  "borders.radiusRelaxed": 8,
-  "borders.radiusPill": 9999,
-  "borders.defaultStyle": "solid",
-};
+const defaults = Object.fromEntries(Object.entries(defaultRules).map(([key, rule]) => [key, rule.value]));
 const requiredColors = [
   "primary",
   "surface",
@@ -427,21 +408,27 @@ export function analyzeProject(
       });
     }
   const propose = (target: string, suggested?: Scalar) => {
-    const c = decision(
-      `value:${target}`,
-      {
-        kind: "proposal",
-        token: target,
-        reason:
-          "Required design value missing; explicit user approval/value required.",
-        suggested,
-      },
-      (c) => typeof c.value === "string" || typeof c.value === "number",
-    );
+    const rule = defaultRules[target];
+    const classification = rule?.classification ?? "C";
+    const reason = rule?.reason ?? "Missing semantic color requires an explicit project-specific value.";
+    const id = `value:${target}`;
+    // Existing answer files remain valid. New A/B completion needs no mandatory answer.
+    const c = classification === "C" || Object.hasOwn(choices, id)
+      ? decision(id, { kind: "proposal", token: target, reason, suggested },
+          (c) => typeof c.value === "string" || typeof c.value === "number")
+      : undefined;
     const value = c?.value ?? suggested;
     if (value !== undefined) {
       assign(config, target, value);
-      proposed.push({ token: target, value, accepted: !!c });
+      proposed.push({ token: target, value, accepted: !!c, classification,
+        origin: "documented-default", reason, editableVia: id,
+        applied: !!c || classification !== "C" });
+      if (!c && classification !== "C") diagnostics.push({
+        code: classification === "A" ? "SAFE_DEFAULT" : "EDITABLE_PROPOSAL",
+        severity: "info", token: target,
+        message: `${classification}: ${JSON.stringify(value)}. ${reason}`,
+        fix: `Change ${id} in the answers file to override; this value was not found in source CSS.`,
+      });
     }
   };
   for (const [key, value] of Object.entries(defaults))
@@ -535,13 +522,22 @@ export function analyzeProject(
         });
       }
   for (const id of Object.keys(choices))
-    if (!decisions.some((d) => d.id === id))
+    if (!decisions.some((d) => d.id === id)) {
+      const target = id.startsWith("value:") ? id.slice(6) : "";
+      const source = mappings.find((m) => m.mode === "light" && m.target === target)?.source;
+      if (Object.hasOwn(defaultRules, target) && source) {
+        diagnostics.push({code: "SUPERSEDED_PROPOSAL", severity: "info", token: target, source,
+          message: `Source mapping replaces the absent-value proposal ${id}; its old answer is not applied.`,
+          fix: `Remove ${id}; to intentionally replace the discovered value use override:light.${target}.`});
+        continue;
+      }
       diagnostics.push({
         code: "UNKNOWN_DECISION",
         severity: "error",
         message: `Unused decision: ${id}`,
         fix: "Remove stale/unknown answers after reviewing the current dry-run.",
       });
+    }
   const theme = config as unknown as SpexopThemeConfig;
   const locate = (field: string) => {
     const mode = field.startsWith("dark.") ? "dark" : "light";

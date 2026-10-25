@@ -1,6 +1,6 @@
 # Design Foundation discovery & onboarding — bounded development tool
 
-SPX-OSS-005B. A local, single-purpose module over the existing Theme API. Not a new npm package, general CLI framework, project refactorer or trusted UI verifier. Theme source is unchanged.
+SPX-OSS-005C. A local, single-purpose module over the existing Theme API. Not a new npm package, general CLI framework, project refactorer or trusted UI verifier. Theme source is unchanged.
 
 ## Quickstart
 
@@ -14,27 +14,27 @@ pnpm --silent foundation /path/to/react-project > /tmp/foundation-review.json
 
 The first command against an unreviewed project normally exits **1**: missing decisions and contrast problems block generation. It writes no project files. The JSON report contains `scope`, exact `found` values/locations, inferred `mappings`, `proposed` values, `manual_decisions`, diagnostics, and the three `plannedOutputPaths`. It does not read a previous Theme input JSON or rewrite application code.
 
-Review the scoped CSS files and mapping rules. Create an answer file outside the CSS sources:
+Review `found` and `mappings` first. Missing scalar fields use three visible classes:
 
-```json
-{
-  "schemaVersion": 1,
-  "inputHash": "COPY_FROM_CURRENT_REPORT",
-  "decisions": {
-    "value:typography.scale": { "value": 1.25 },
-    "map:src/tokens.css:20:3:--space-card": { "target": "spacing.values.card" },
-    "override:light.colors.textMuted": { "value": "#475569" }
-  }
-}
-```
+- **A — safe documented default:** numeric CSS normal/bold weight. Applied only when absent; shown with origin/reason and editable via `value:<token>`.
+- **B — editable proposal:** starter border/type rhythm values, never claimed as discovered. Applied in the preview without a mandatory question; all are visible in `proposed` and `answerTemplate.optionalProposals`. Add the listed `editableVia` key with a `{ "value": ... }` answer to change it.
+- **C — required user choice:** semantic colors, font/base size/type scale/spacing grid/corner identity, ambiguous mappings, conflicts, missing dark values and contrast repairs. These block generation until explicitly resolved. Source values are never replaced by A/B completion.
 
-This is a shape example, not a universal answer. Every pending decision needs review; suggested values are not accepted automatically. A source mapping that supplies a required value supersedes its proposed-default slot: omit the corresponding `value:...` answer. Unknown/stale answers are errors, not ignored. Each scalar default approval, ambiguity/conflict resolution, inheritance and value override is counted separately. An `ignore:true` choice is also counted and produces a warning.
+Create a ready-to-edit answer skeleton rather than constructing JSON by hand:
 
 ```sh
-pnpm --silent foundation /path/to/react-project --decisions /path/to/answers.json > /tmp/foundation-preview.json
+pnpm --silent foundation /path/to/react-project --prepare-answers foundation-answers.json > /tmp/foundation-review.json
+# Edit /path/to/react-project/foundation-answers.json using its per-decision guidance.
+pnpm --silent foundation /path/to/react-project --answers /path/to/react-project/foundation-answers.json > /tmp/foundation-preview.json
 # Only after ok:true and reviewing outputs:
-pnpm --silent foundation /path/to/react-project --decisions /path/to/answers.json --write
+pnpm --silent foundation /path/to/react-project --answers /path/to/react-project/foundation-answers.json --write
 ```
+
+`--prepare-answers` is an explicit write of a NEW in-project JSON file; existing files and symlink parents are refused. Empty `{}` answers deliberately remain invalid. It can be combined with existing answers to prepare a refreshed template at a different new filename; it cannot be combined with output `--write`. The default dry-run already includes `answerTemplate` in memory and writes nothing. Pending decisions have reason, source, suggested value and options when available. A missing suggestion must not be invented as a discovered value.
+
+Answer shapes: proposal/override `{ "value": <scalar> }`; mapping `{ "target": "<supported Theme path>" }` or explicit `{ "ignore": true }`; conflict `{ "source": "<listed source id>" }`; inheritance `{ "inherit": true }` or `{ "value": "<dark color>" }`. New decisions can appear after mapping makes additional checks possible: rerun preview, inspect guidance, and update the answers. Overrides use `override:light.<token>` / `override:dark.colors.<name>` and always count as manual decisions.
+
+`--decisions` remains a compatible alias for `--answers`; schemaVersion 1, inputHash and old reviewed answer files still work. A known scalar proposal superseded by a real source mapping produces `SUPERSEDED_PROPOSAL` info instead of forcing deletion of the stale default answer; the source wins, and an intentional change requires an override. Other unknown/stale/malformed answers are errors. An `ignore:true` choice counts and produces a warning. No accept-all facility or interactive framework is added.
 
 `--write` re-analyzes current sources. It only creates a **new** `.spexop/foundation/` containing `theme.css`, `tailwind.css`, `theme.tokens.json`. Existing directories/files are refused, including empty output directories. No force flag. Sources, existing CSS and application imports remain untouched. Use a new test copy or explicitly manage previously generated outputs yourself before regenerating; the tool never removes them. Input hashes bind decisions to CSS contents, paths and expected modes.
 
@@ -59,7 +59,7 @@ Dark palette omissions never silently pass as complete: approve each inheritance
 
 One operation performs raw CSS alias checks, Theme validation, expected mode decisions, contrast audit and all three generators. Contrast failure is an error with a manual correction decision. No colors are automatically repaired. Cross-mode aliases whose semantic slot refers to a different CSS variable are blocked. Inheriting a light alias into dark is unsupported; supply an explicit dark value or an intentional dark alias. Dark non-color overrides are rejected, not silently discarded. Diagnostics carry code, explanation, token, source location when known and a next action. A missing proposed value has no invented CSS location. Declared contrast pairs do not prove actual UI contrast, focus, states, semantics or full WCAG compliance.
 
-## Fieldwork replay
+## Historical Fieldwork replay (005B baseline retained)
 
 Use a clean copy of `examples/design-foundation-journey` from this branch (exclude ignored old `src/generated.css`, node_modules, dist and artifacts). Its committed `foundation-decisions.json` reviews the original `src/app.css` + `src/legacy.css` scope. The source hash must match. On a dirty/previously generated copy, inspect the scope or select CSS explicitly and produce fresh reviewed answers.
 
@@ -72,3 +72,7 @@ The prior React/Tailwind wiring is already present. Two onboarding files were ch
 After `pnpm build`, import `analyzeProject` or explicit `writeFoundation` from `tools/foundation/dist/index.js`. Both take a project directory and `Options`; neither needs a browser, service or private backend. Root `pnpm check` builds Theme + tool, typechecks implementation/tests, lints and runs Theme regressions + onboarding tests. Existing private PR CI uses the same check. Independent output tests use the already installed PostCSS and Terrazzo parser; no new external dependency was added.
 
 Sources: [PostCSS parsing/source positions](https://postcss.org/api/), [Tailwind theme variables](https://tailwindcss.com/docs/theme). This is an M3 development slice; M4 hardcoded-style detection and M8 public/npm release remain separate.
+
+## Defaults policy evidence
+
+The 15 scalar answers in the 005B baseline classify as **2 A / 11 B / 2 C**. A: regular=400 and bold=700 ([CSS weight definitions](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/font-weight)). C: typography scale and relaxed radius. B: medium/semibold, four line-heights, three border widths, pill radius and border style. Full per-token value, classification and rationale live in `defaults.ts`; none has a fabricated source location. Existing values always win. Font family/base size, spacing unit and subtle radius are also C when absent; they were sourced/mapped rather than among those 15 approvals. There is no automatic link alias or contrast correction.
