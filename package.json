@@ -8,11 +8,12 @@
     "node": ">=22.13 <27"
   },
   "scripts": {
-    "build": "pnpm --filter @spexop/theme build",
-    "typecheck": "tsc --noEmit -p packages/theme/tsconfig.json",
-    "lint": "eslint packages/theme/src packages/theme/test",
+    "build": "pnpm --filter @spexop/theme build && tsc -p tools/foundation/tsconfig.json",
+    "typecheck": "tsc --noEmit -p packages/theme/tsconfig.json && tsc -p tools/foundation/tsconfig.check.json",
+    "lint": "eslint packages/theme/src packages/theme/test tools/foundation --ignore-pattern 'tools/foundation/dist/**'",
     "test": "vitest run",
-    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
+    "check": "pnpm build && pnpm typecheck && pnpm lint && pnpm test",
+    "foundation": "node tools/foundation/dist/cli.js"
   },
   "devDependencies": {
     "typescript": "5.9.3",
@@ -22,6 +23,7 @@
     "@terrazzo/parser": "2.10.0",
     "tailwindcss": "4.3.3",
     "postcss": "8.5.31",
-    "@types/node": "22.18.6"
+    "@types/node": "22.18.6",
+    "@spexop/theme": "workspace:*"
   }
 }

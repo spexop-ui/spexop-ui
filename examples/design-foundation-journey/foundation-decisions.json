@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "inputHash": "4d94fa7074f2236005435d84d1c89d52673d782e083f20f44863c7117a68b88d",
+  "decisions": {
+    "value:typography.scale": {
+      "value": 1.25
+    },
+    "value:typography.weights.regular": {
+      "value": 400
+    },
+    "value:typography.weights.medium": {
+      "value": 500
+    },
+    "value:typography.weights.semibold": {
+      "value": 600
+    },
+    "value:typography.weights.bold": {
+      "value": 700
+    },
+    "value:typography.lineHeights.tight": {
+      "value": 1.2
+    },
+    "value:typography.lineHeights.snug": {
+      "value": 1.375
+    },
+    "value:typography.lineHeights.normal": {
+      "value": 1.5
+    },
+    "value:typography.lineHeights.relaxed": {
+      "value": 1.75
+    },
+    "value:borders.thin": {
+      "value": 1
+    },
+    "value:borders.default": {
+      "value": 1
+    },
+    "value:borders.thick": {
+      "value": 2
+    },
+    "value:borders.radiusRelaxed": {
+      "value": 8
+    },
+    "value:borders.radiusPill": {
+      "value": 9999
+    },
+    "value:borders.defaultStyle": {
+      "value": "solid"
+    },
+    "map:src/legacy.css:20:3:--space-card": {
+      "target": "spacing.values.card"
+    },
+    "map:src/legacy.css:22:3:--radius": {
+      "target": "borders.radiusSubtle"
+    },
+    "override:light.colors.textMuted": {
+      "value": "#475569"
+    }
+  }
+}

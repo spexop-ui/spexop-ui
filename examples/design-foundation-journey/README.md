@@ -58,3 +58,22 @@ The Tailwind Vite plugin scans class names; that is Tailwind functionality, not 
 Copy only this fixture's source/lockfile and the verified tarball into an empty directory; repeat `npm ci --ignore-scripts`, `npm run build`, `npm run faults`. Compare the three generated output SHA-256 values. Browser checks belong to the acceptance report, not to the Theme audit.
 
 This expert-assisted experiment proves that a manually mapped theme can drive an app. It does not establish that an unfamiliar solo developer can complete the journey without documentation. Engineering Master retains M3 as incomplete; no new scanner, production CLI/MCP or component package was implemented.
+
+## OSS-005B discovery replay (separate from the baseline above)
+
+The original 005A measurements above remain unchanged. To test the new discovery tool, use a clean fixture copy without the ignored legacy `src/generated.css`; the previous generated file is not an original source token inventory.
+
+From the monorepo root after `pnpm install` and `pnpm build`:
+
+```sh
+# Expected exit 1: unresolved choices and the original low-contrast muted text.
+pnpm --silent foundation examples/design-foundation-journey
+# Inspect this committed example answer file; it contains evaluator choices.
+pnpm --silent foundation examples/design-foundation-journey --decisions examples/design-foundation-journey/foundation-decisions.json
+# Explicitly create a NEW output directory (never overwrite).
+pnpm --silent foundation examples/design-foundation-journey --decisions examples/design-foundation-journey/foundation-decisions.json --write
+```
+
+For application integration, change only the CSS import in `src/main.tsx` from `./generated.css` to `../.spexop/foundation/tailwind.css`. Preserve `src/app.css` and all UI components. Use `npm run typecheck` and `npx vite build`, then `npm run preview`; the old `npm run build` intentionally remains the 005A legacy-generation command. Install this fixture's dependencies using the tarball instructions above first.
+
+Full scope, supported selectors, source/guess distinction, 19 initial questions / 18 final answers, unsupported structures and safety rules: [onboarding tool README](../../tools/foundation/README.md). Source hashes bind the answer file to the original CSS snapshot; review a fresh report if the inputs or selected scope changed. This example does not approve defaults for unrelated projects.
