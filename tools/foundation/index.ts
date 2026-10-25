@@ -38,3 +38,5 @@ export function writeFoundation(project: string, options: Options = {}) {
     throw error;
   }
 }
+
+export { createAnswersTemplate, writeAnswersTemplate } from "./answers.js";

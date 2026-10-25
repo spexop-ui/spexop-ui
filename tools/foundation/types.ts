@@ -64,7 +64,9 @@ export interface Analysis {
   mappings: Mapping[];
   manual_decisions: Decision[];
   diagnostics: Diagnostic[];
-  proposed: Array<{ token: string; value: Scalar; accepted: boolean }>;
+  proposed: Array<{ token: string; value: Scalar; accepted: boolean;
+    classification: "A" | "B" | "C"; origin: "documented-default";
+    reason: string; editableVia: string; applied: boolean }> ;
   inheritance: Array<{ token: string; from: "light"; accepted: boolean }>;
   theme: SpexopThemeConfig;
   plannedOutputPaths: string[];

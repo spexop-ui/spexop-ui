@@ -24,8 +24,8 @@ it("compares Fieldwork automatic mappings against the unchanged 005A golden prov
       found: 30,
       automaticMappings: 28,
       ambiguousValues: 2,
-      manualDecisions: 19,
-      unresolvedDecisions: 19,
+      manualDecisions: 6,
+      unresolvedDecisions: 6,
     });
     const answers = JSON.parse(
       fs.readFileSync(`${source}/foundation-decisions.json`, "utf8"),
