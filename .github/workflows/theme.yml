@@ -1,0 +1,31 @@
+name: Theme slice verification
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  theme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+        with:
+          version: 11.1.2
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm check
+      - name: Packed React and TypeScript consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm --filter @spexop/theme pack --pack-destination "$RUNNER_TEMP/spexop-pack"
+          python3 scripts/verify-package.py "$RUNNER_TEMP/spexop-pack/spexop-theme-0.7.0-alpha.0.tgz" > "$RUNNER_TEMP/package-contents.json"
+          mkdir "$RUNNER_TEMP/spexop-consumer"
+          cp examples/react-consumer/* "$RUNNER_TEMP/spexop-consumer/"
+          cd "$RUNNER_TEMP/spexop-consumer"
+          npm install --ignore-scripts "$RUNNER_TEMP/spexop-pack/spexop-theme-0.7.0-alpha.0.tgz"
+          npm run check
