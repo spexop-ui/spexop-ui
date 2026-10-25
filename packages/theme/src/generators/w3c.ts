@@ -125,7 +125,26 @@ export function readDTCG(json: string): Record<string, unknown> {
     if (!node || typeof node !== "object" || Array.isArray(node))
       throw new Error(`Invalid group ${path.join(".")}`);
     const o = node as Record<string, unknown>;
+    if ("$description" in o && typeof o.$description !== "string")
+      throw new Error("Invalid DTCG description");
+    if ("$type" in o && typeof o.$type !== "string")
+      throw new Error("Invalid DTCG type");
+    if (
+      "$extensions" in o &&
+      (!o.$extensions ||
+        typeof o.$extensions !== "object" ||
+        Array.isArray(o.$extensions))
+    )
+      throw new Error("Invalid DTCG extensions");
+    if (
+      "$deprecated" in o &&
+      typeof o.$deprecated !== "boolean" &&
+      typeof o.$deprecated !== "string"
+    )
+      throw new Error("Invalid DTCG deprecation");
     if ("$value" in o) {
+      if (!path.length)
+        throw new Error("DTCG tokens require a name in a containing group");
       if (
         Object.keys(o).some(
           (k) =>

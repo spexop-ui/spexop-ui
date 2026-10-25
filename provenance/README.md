@@ -14,3 +14,7 @@ The original OSS-002 markdown report was not present at the requested path. Its 
 ## PR review regression pass
 
 The first 77-test result was insufficient for several legacy component paths. Fifteen independent PR findings were evaluated against new tests: the initial regression run failed 21 of 24 new scenarios (80/101 total passing). All reported behaviors were corrected, with additional negative controls for font parsing and normalized token names. The final suite contains 107 tests. See `packages/theme/test/review-regressions.test.ts` (R01–R15). This replaces the initial technical-closeout assumption; no review finding was dismissed merely because CI had passed.
+
+## OSS-004 acceptance corrections
+
+Independent acceptance at `70749833` reverified all 15 selected source hashes against remote Git blobs. Optional emitted values could bypass validation (invalid component colors, negative dimensions, malformed containers), and the subset DTCG reader accepted invalid metadata and an unnamed document-root token. The first added regression run failed 25/27 cases; the fixes and three additional width controls bring the suite to 137 tests. Only the selected validator and DTCG generator were adapted; no additional legacy source, asset, dependency or history was imported. The selection manifest retains original source hashes and updates the resulting file hashes. Technical acceptance does not close the global security/rights gates or authorize merge/public/npm release.

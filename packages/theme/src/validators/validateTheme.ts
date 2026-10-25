@@ -29,6 +29,42 @@ export function validateTheme(input: unknown): ValidationResult {
     if (!object(input[k])) fail(k, "Required object");
   if (errors.length) return { valid: false, errors };
   const theme = input as unknown as SpexopThemeConfig;
+  // Validate optional container shapes before resolution can merge/discard them.
+  const components = ["buttons", "cards", "dividers", "forms"] as const;
+  const checkComponents = (source: Record<string, unknown>, path: string) => {
+    for (const group of components) {
+      const value = source[group];
+      if (value === undefined) continue;
+      if (!object(value)) fail(`${path}.${group}`, "Expected variant object");
+      else
+        for (const [key, style] of Object.entries(value))
+          if (!object(style))
+            fail(`${path}.${group}.${key}`, "Expected style object");
+    }
+  };
+  checkComponents(input, "$");
+  if (object(input.darkMode)) checkComponents(input.darkMode, "darkMode");
+  for (const group of [
+    "radii",
+    "shadows",
+    "zIndex",
+    "breakpoints",
+    "opacity",
+    "animations",
+  ])
+    if (input[group] !== undefined && !object(input[group]))
+      fail(group, "Expected object");
+  for (const [group, keys] of [
+    ["typography", ["sizes"]],
+    ["spacing", ["values"]],
+    ["animations", ["durations", "easings", "transitions"]],
+  ] as const) {
+    const values = input[group];
+    if (object(values))
+      for (const key of keys)
+        if (values[key] !== undefined && !object(values[key]))
+          fail(`${group}.${key}`, "Expected object");
+  }
   for (const k of ["name", "version"] as const)
     if (typeof theme.meta[k] !== "string" || !theme.meta[k].trim())
       fail(`meta.${k}`, "Required nonempty string");
@@ -143,12 +179,73 @@ export function validateTheme(input: unknown): ValidationResult {
         for (const [k, v] of Object.entries(effective.typography.sizes ?? {}))
           positive(`typography.sizes.${k}`, v);
         for (const [k, v] of Object.entries(effective.typography.weights))
-          if (v < 1 || v > 1000)
+          if (typeof v !== "number" || v < 1 || v > 1000)
             fail(
               `typography.weights.${k}`,
               "Font weight must be between 1 and 1000",
             );
         fontFamilies(effective.typography.fontFamily);
+        for (const key of ["fontFamilyHeading", "fontFamilyMono"] as const)
+          if (effective.typography[key] !== undefined)
+            fontFamilies(effective.typography[key]!);
+        for (const [key, value] of Object.entries(
+          effective.typography.lineHeights,
+        ))
+          positive(`typography.lineHeights.${key}`, value);
+        const nonnegative = (path: string, value: unknown) => {
+          if (typeof value !== "number" || !Number.isFinite(value) || value < 0)
+            fail(path, "Expected nonnegative finite number");
+        };
+        for (const [group, values] of Object.entries({
+          radii: effective.radii,
+          breakpoints: effective.breakpoints,
+          "animations.durations": effective.animations?.durations,
+        }))
+          for (const [key, value] of Object.entries(values ?? {}))
+            nonnegative(`${group}.${key}`, value);
+        if (effective.borders.radiusLiquid !== undefined)
+          nonnegative("borders.radiusLiquid", effective.borders.radiusLiquid);
+        for (const [key, value] of Object.entries(effective.opacity ?? {}))
+          if (typeof value !== "number" || value < 0 || value > 1)
+            fail(`opacity.${key}`, "Expected opacity between 0 and 1");
+        for (const [key, value] of Object.entries(effective.zIndex ?? {}))
+          if (!Number.isInteger(value))
+            fail(`zIndex.${key}`, "Expected integer layer");
+        for (const group of components)
+          for (const [variant, style] of Object.entries(
+            effective[group] ?? {},
+          )) {
+            for (const [key, value] of Object.entries(style)) {
+              const path = `${mode}.${group}.${variant}.${key}`;
+              if (key === "borderStyle") {
+                if (!["solid", "dashed", "dotted"].includes(String(value)))
+                  fail(path, "Invalid border style");
+              } else if (key === "borderWidth" || key === "borderHoverWidth") {
+                // Legacy widths are pixel numbers/references or literal CSS lengths.
+                if (
+                  !(
+                    typeof value === "number" &&
+                    Number.isFinite(value) &&
+                    value >= 0
+                  ) &&
+                  !(
+                    typeof value === "string" &&
+                    /^(?:thin|medium|thick|\+?(?:\d+\.?\d*|\.\d+)(?:px|rem|em|ch|ex|cap|ic|lh|rlh|vw|vh|vmin|vmax|svw|svh|lvw|lvh|dvw|dvh|cm|mm|q|in|pt|pc)?)$/i.test(
+                      value.trim(),
+                    )
+                  )
+                )
+                  fail(path, "Expected nonnegative border width");
+              } else {
+                // The remaining fields in these legacy variant interfaces are colors.
+                try {
+                  parseColor(value as string);
+                } catch (e) {
+                  fail(path, String(e));
+                }
+              }
+            }
+          }
         expandColors(effective.colors);
         if (effective.fluidTypography) {
           const fluid = validateFluidTypography(effective.fluidTypography);

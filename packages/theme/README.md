@@ -20,6 +20,8 @@ const audit = auditThemeAccessibility(theme);
 
 `createTheme` validates and clones the input; it does not silently repair colors, references or contrast. The historical default is a readable example, **not an accessibility-approved theme**. `resolveToken` and `resolveTheme` resolve legacy `colors.text` and `{colors.text}` aliases; missing, circular, unsafe and object references fail explicitly. The numeric fields in the legacy TypeScript model remain numeric; JSON inputs can use scalar aliases where the validator resolves them, such as named spacing values.
 
+Optional component color fields are validated after alias/mode resolution. Border widths accept nonnegative pixel numbers, bare numeric strings, literal CSS length units, or `thin`/`medium`/`thick`; expressions such as `calc()` and `var()` are outside this bounded validator. Optional radii, breakpoints and durations must be nonnegative; opacity is in [0,1] and z-index is an integer. This is not a general CSS grammar validator for every legacy string field.
+
 ## Output and supported scope
 
 - HEX, RGB, HSL and OKLCH are parsed through Color.js. Source color strings are preserved in CSS. Legacy `-rgb` companion properties are clipped to sRGB explicitly; they are fallback coordinates, not contrast evidence. No color fallback to black occurs.

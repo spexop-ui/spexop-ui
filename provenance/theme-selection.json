@@ -1569,7 +1569,7 @@
       ],
       "reason": "Replace legacy string colors with DTCG 2025.10 structured values; aliases and dark groups retained; reject unsupported alias targets. Selected verified MIT package source; Nx alternative excluded pending distribution authority.",
       "adaptation": "Replace legacy string colors with DTCG 2025.10 structured values; aliases and dark groups retained; reject unsupported alias targets.",
-      "result_sha256": "720ad75aea3e545bf774bb35544d677713ea16607e9536ed3124a854f220e144",
+      "result_sha256": "f04300dc8b0edb8cee846a82ee4e379a8c2145d3f48afd13e7fa71e7ba6ed874",
       "review_adaptation": "Review regressions: shared spacing expansion and parsed CSS font-family lists."
     },
     {
@@ -3816,7 +3816,7 @@
       ],
       "reason": "Explicit core model/color/reference validation, finite numeric checks and unsafe key/CSS rejection without repair. Selected verified MIT package source; Nx alternative excluded pending distribution authority.",
       "adaptation": "Explicit core model/color/reference validation, finite numeric checks and unsafe key/CSS rejection without repair.",
-      "result_sha256": "e98e3a501a76d7c9f410524b7babbd544a40e6d7d3cc7c2fcb3bfbdbbf5c057b",
+      "result_sha256": "a8df2c159b60e04d687bd13ad5e45a557cf494e5c74e30e183b3c228d20ae311",
       "review_adaptation": "Review regressions: optional dark colors, fluid shape/ranges, font-list and normalized-name validation."
     },
     {
