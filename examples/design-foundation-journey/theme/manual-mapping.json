@@ -1,0 +1,309 @@
+{
+  "method": "Manual fixture-specific mapping, not automatic project discovery",
+  "decisions": [
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--brand",
+      "target": "colors.primary",
+      "before": "#2563eb",
+      "after": "#2563eb",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--surface",
+      "target": "colors.surface",
+      "before": "#ffffff",
+      "after": "#ffffff",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--surface-soft",
+      "target": "colors.surfaceSecondary",
+      "before": "#f1f5f9",
+      "after": "#f1f5f9",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--surface-hover",
+      "target": "colors.surfaceHover",
+      "before": "#e2e8f0",
+      "after": "#e2e8f0",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--ink",
+      "target": "colors.text",
+      "before": "#0f172a",
+      "after": "#0f172a",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--ink-secondary",
+      "target": "colors.textSecondary",
+      "before": "#475569",
+      "after": "#475569",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--ink-muted",
+      "target": "colors.textMuted",
+      "before": "#94a3b8",
+      "after": "#475569",
+      "decision": "contrast correction"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--line",
+      "target": "colors.border",
+      "before": "#cbd5e1",
+      "after": "#cbd5e1",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--line-strong",
+      "target": "colors.borderStrong",
+      "before": "#64748b",
+      "after": "#64748b",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--line-subtle",
+      "target": "colors.borderSubtle",
+      "before": "#e2e8f0",
+      "after": "#e2e8f0",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": "[data-theme=\"dark\"]",
+      "variable": "--brand",
+      "target": "darkMode.colors.primary",
+      "before": "#60a5fa",
+      "after": "#60a5fa",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": "[data-theme=\"dark\"]",
+      "variable": "--surface",
+      "target": "darkMode.colors.surface",
+      "before": "#0f172a",
+      "after": "#0f172a",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": "[data-theme=\"dark\"]",
+      "variable": "--surface-soft",
+      "target": "darkMode.colors.surfaceSecondary",
+      "before": "#1e293b",
+      "after": "#1e293b",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": "[data-theme=\"dark\"]",
+      "variable": "--surface-hover",
+      "target": "darkMode.colors.surfaceHover",
+      "before": "#334155",
+      "after": "#334155",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": "[data-theme=\"dark\"]",
+      "variable": "--ink",
+      "target": "darkMode.colors.text",
+      "before": "#f8fafc",
+      "after": "#f8fafc",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": "[data-theme=\"dark\"]",
+      "variable": "--ink-secondary",
+      "target": "darkMode.colors.textSecondary",
+      "before": "#cbd5e1",
+      "after": "#cbd5e1",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": "[data-theme=\"dark\"]",
+      "variable": "--ink-muted",
+      "target": "darkMode.colors.textMuted",
+      "before": "#94a3b8",
+      "after": "#94a3b8",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": "[data-theme=\"dark\"]",
+      "variable": "--line",
+      "target": "darkMode.colors.border",
+      "before": "#475569",
+      "after": "#475569",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": "[data-theme=\"dark\"]",
+      "variable": "--line-strong",
+      "target": "darkMode.colors.borderStrong",
+      "before": "#94a3b8",
+      "after": "#94a3b8",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": "[data-theme=\"dark\"]",
+      "variable": "--line-subtle",
+      "target": "darkMode.colors.borderSubtle",
+      "before": "#334155",
+      "after": "#334155",
+      "decision": "preserved"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--font-body",
+      "target": "typography.fontFamily",
+      "before": "system-ui, sans-serif",
+      "after": "system-ui, sans-serif",
+      "decision": "preserved semantic value; px numeric conversion if needed"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--font-size-base",
+      "target": "typography.baseSize",
+      "before": "16px",
+      "after": 16,
+      "decision": "preserved semantic value; px numeric conversion if needed"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--space-unit",
+      "target": "spacing.baseUnit",
+      "before": "4px",
+      "after": 4,
+      "decision": "preserved semantic value; px numeric conversion if needed"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--radius",
+      "target": "borders.radiusSubtle",
+      "before": "8px",
+      "after": 8,
+      "decision": "preserved semantic value; px numeric conversion if needed"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--radius",
+      "target": "borders.radiusRelaxed",
+      "before": "8px",
+      "after": 8,
+      "decision": "preserved semantic value; px numeric conversion if needed"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--space-0",
+      "target": "spacing.values.0",
+      "before": "0px",
+      "after": 0,
+      "decision": "preserved semantic value; px numeric conversion if needed"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--space-1",
+      "target": "spacing.values.1",
+      "before": "4px",
+      "after": 4,
+      "decision": "preserved semantic value; px numeric conversion if needed"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--space-2",
+      "target": "spacing.values.2",
+      "before": "8px",
+      "after": 8,
+      "decision": "preserved semantic value; px numeric conversion if needed"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--space-4",
+      "target": "spacing.values.4",
+      "before": "16px",
+      "after": 16,
+      "decision": "preserved semantic value; px numeric conversion if needed"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--space-6",
+      "target": "spacing.values.6",
+      "before": "24px",
+      "after": 24,
+      "decision": "preserved semantic value; px numeric conversion if needed"
+    },
+    {
+      "source": "src/legacy.css",
+      "selector": ":root",
+      "variable": "--space-card",
+      "target": "spacing.values.4",
+      "before": "18px",
+      "after": 16,
+      "decision": "evaluator fixture decision: align card padding to existing 16px scale; Theme does not infer this"
+    }
+  ],
+  "newConventions": [
+    "meta/name/version",
+    "typography.scale=1.25",
+    "four font weights",
+    "four line heights",
+    "border widths 1/1/2",
+    "radiusPill=9999",
+    "defaultStyle=solid",
+    "light+dark link aliases to primary",
+    "darkMode.enabled=true"
+  ],
+  "manualIntegrationFiles": [
+    "package.json",
+    "vite.config.ts",
+    "theme/input.json",
+    "scripts/generate.mjs",
+    "src/main.tsx",
+    "src/App.tsx",
+    "src/app.css"
+  ],
+  "researchEvidenceFiles": [
+    "theme/manual-mapping.json",
+    "scripts/faults.mjs"
+  ],
+  "remainingIntentionalDrift": "src/App.tsx inline padding/color badge, outside Theme API inspection"
+}

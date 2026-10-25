@@ -1,0 +1,35 @@
+/* Existing project values: manually reviewed, not discovered by Spexop. */
+:root {
+  --brand: #2563eb;
+  --surface: #ffffff;
+  --surface-soft: #f1f5f9;
+  --surface-hover: #e2e8f0;
+  --ink: #0f172a;
+  --ink-secondary: #475569;
+  --ink-muted: #94a3b8;
+  --line: #cbd5e1;
+  --line-strong: #64748b;
+  --line-subtle: #e2e8f0;
+  --font-body: system-ui, sans-serif;
+  --font-size-base: 16px;
+  --space-unit: 4px;
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-card: 18px;
+  --space-6: 24px;
+  --radius: 8px;
+}
+[data-theme="dark"] {
+  --brand: #60a5fa;
+  --surface: #0f172a;
+  --surface-soft: #1e293b;
+  --surface-hover: #334155;
+  --ink: #f8fafc;
+  --ink-secondary: #cbd5e1;
+  --ink-muted: #94a3b8;
+  --line: #475569;
+  --line-strong: #94a3b8;
+  --line-subtle: #334155;
+}
