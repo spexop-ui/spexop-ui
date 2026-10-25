@@ -243,6 +243,8 @@ export function meetsMinimumContrast(
       return ratio >= (isLargeText ? 4.5 : 7.0);
     case ContrastLevel.AA:
       return ratio >= (isLargeText ? 3.0 : 4.5);
+    case ContrastLevel.AA_LARGE:
+      return ratio >= 3.0;
     case ContrastLevel.ENHANCED:
       return ratio >= 10.0;
     default:
@@ -383,9 +385,8 @@ export function optimizeThemeContrast(colors: Record<string, string>): {
   }>;
   recommendations: string[];
 } {
-  const colorArray = Object.values(colors).filter(
-    (c) => typeof c === "string" && c.startsWith("#"),
-  );
+  const colorArray = Object.values(colors);
+  if (colorArray.length < 2) throw new Error("At least two colors required");
   const matrix = generateContrastMatrix(colorArray);
 
   const compliant: Array<{

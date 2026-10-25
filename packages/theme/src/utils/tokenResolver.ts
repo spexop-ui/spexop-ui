@@ -71,6 +71,17 @@ export function resolveTree<T>(value: T, config: SpexopThemeConfig): T {
     ) as T;
   return value;
 }
+/** Merge partial variant properties without mutating base or override objects. */
+function mergeVariants<T extends object>(
+  base: T | undefined,
+  overrides: T | undefined,
+): T | undefined {
+  if (!base && !overrides) return undefined;
+  const result = { ...base } as Record<string, unknown>;
+  for (const [key, value] of Object.entries(overrides ?? {}))
+    result[key] = { ...((result[key] as object) ?? {}), ...(value as object) };
+  return result as T;
+}
 /** Return independent effective-mode values; never mutate caller input. */
 export function resolveTheme(
   config: SpexopThemeConfig,
@@ -86,9 +97,9 @@ export function resolveTheme(
       ? {
           ...base,
           colors: { ...base.colors, ...darkMode?.colors },
-          buttons: { ...base.buttons, ...darkMode?.buttons },
-          cards: { ...base.cards, ...darkMode?.cards },
-          dividers: { ...base.dividers, ...darkMode?.dividers },
+          buttons: mergeVariants(base.buttons, darkMode?.buttons),
+          cards: mergeVariants(base.cards, darkMode?.cards),
+          dividers: mergeVariants(base.dividers, darkMode?.dividers),
         }
       : base;
   return resolveTree(effective, effective);

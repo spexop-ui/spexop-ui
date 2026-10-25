@@ -10,3 +10,7 @@ The user authorized private Theme implementation and private repository/PR opera
 - No old Git graph, npm tarball or generated legacy build was copied. This repository starts with a new root commit. No npm publishing workflow exists; package private flag remains enabled.
 
 The original OSS-002 markdown report was not present at the requested path. Its existing evidence/lineage/gates JSON and the supplied owner handoff were used, with selected-file verification performed again. OSS-002B/C and Engineering Master ADR-001/002/008/009/010 and S1/L1/L2 records were read.
+
+## PR review regression pass
+
+The first 77-test result was insufficient for several legacy component paths. Fifteen independent PR findings were evaluated against new tests: the initial regression run failed 21 of 24 new scenarios (80/101 total passing). All reported behaviors were corrected, with additional negative controls for font parsing and normalized token names. The final suite contains 107 tests. See `packages/theme/test/review-regressions.test.ts` (R01–R15). This replaces the initial technical-closeout assumption; no review finding was dismissed merely because CI had passed.

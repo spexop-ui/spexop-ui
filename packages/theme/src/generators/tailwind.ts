@@ -1,15 +1,21 @@
 /** Tailwind v4 CSS-first output; legacy v3 JavaScript configuration is not emitted. */
 import type { SpexopThemeConfig } from "../types/SpexopThemeConfig.js";
+import { expandColors, tokenName } from "../utils/foundationTokens.js";
 import { generateCSS } from "./css.js";
 import { resolveTheme } from "../utils/tokenResolver.js";
 export function generateTailwind(config: SpexopThemeConfig): string {
   const css = generateCSS(config);
   const theme = resolveTheme(config);
-  const kebab = (s: string) =>
-    s.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
-  const colors = Object.keys(theme.colors)
+  const colors = [
+    ...new Set([
+      ...Object.keys(expandColors(theme.colors)),
+      ...(config.darkMode?.enabled
+        ? Object.keys(expandColors(resolveTheme(config, "dark").colors))
+        : []),
+    ]),
+  ]
     .sort()
-    .map((k) => `  --color-${kebab(k)}: var(--theme-${kebab(k)});`);
+    .map((k) => `  --color-${tokenName(k)}: var(--theme-${tokenName(k)});`);
   const extra = [
     ...new Set(
       [

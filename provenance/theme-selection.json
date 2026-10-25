@@ -675,7 +675,8 @@
       ],
       "reason": "Retain CSS generator; resolve modes separately, throw invalid aliases, accept modern colors, preserve zero spacing and honor dark opt-out. Selected verified MIT package source; Nx alternative excluded pending distribution authority.",
       "adaptation": "Retain CSS generator; resolve modes separately, throw invalid aliases, accept modern colors, preserve zero spacing and honor dark opt-out.",
-      "result_sha256": "61f40c54a8fa3a7c4a38d583654622fd40069a21c080d7355065a3741b122f1b"
+      "result_sha256": "1fe2adc5167b07eef68df00e26c4fa39b17c97ebaed732ccf2d81372a3e9172b",
+      "review_adaptation": "Review regressions: unified light/dark palette and components; normalized custom keys; zero dimensions and unit-bearing lengths preserved."
     },
     {
       "target": "packages/theme/src/generators/cssModules.ts",
@@ -1369,7 +1370,8 @@
       ],
       "reason": "Replace v3 config output with tested v4 CSS-first bindings; custom spacing and typography preserved. Selected verified MIT package source; Nx alternative excluded pending distribution authority.",
       "adaptation": "Replace v3 config output with tested v4 CSS-first bindings; custom spacing and typography preserved.",
-      "result_sha256": "d4e0882edd1006e9f1c96f9ec792204676e2ca8683edf1c610b6344219d02dad"
+      "result_sha256": "78b1760e240540f13294b6735844ac03a4fd6d9bd984a5371ed620eb92592eaa",
+      "review_adaptation": "Review regression: union of light/dark color keys with consistent names."
     },
     {
       "target": "packages/theme/src/generators/tokensStudio.ts",
@@ -1567,7 +1569,8 @@
       ],
       "reason": "Replace legacy string colors with DTCG 2025.10 structured values; aliases and dark groups retained; reject unsupported alias targets. Selected verified MIT package source; Nx alternative excluded pending distribution authority.",
       "adaptation": "Replace legacy string colors with DTCG 2025.10 structured values; aliases and dark groups retained; reject unsupported alias targets.",
-      "result_sha256": "496ae2a46c1785934da95fd9986356f52ee8872520838bfc702cace3b9ea2bb6"
+      "result_sha256": "720ad75aea3e545bf774bb35544d677713ea16607e9536ed3124a854f220e144",
+      "review_adaptation": "Review regressions: shared spacing expansion and parsed CSS font-family lists."
     },
     {
       "target": "packages/theme/src/generators/yaml.ts",
@@ -3173,7 +3176,8 @@
       ],
       "reason": "Retain WCAG calculation; modern color adapter, unrounded thresholds, correct 0.04045 breakpoint and batch minRatio enforcement. Selected verified MIT package source; Nx alternative excluded pending distribution authority.",
       "adaptation": "Retain WCAG calculation; modern color adapter, unrounded thresholds, correct 0.04045 breakpoint and batch minRatio enforcement.",
-      "result_sha256": "f4c33b5551092cda0cab1f7b4457b037003dea31590fc13ac546a588bfb1dd3a"
+      "result_sha256": "58241664da37ab5ccfdcbd6fe62e3c847cb5e15eb879acac83d2f0833d38e178",
+      "review_adaptation": "Review regressions: AA_LARGE threshold and modern-color palette optimization."
     },
     {
       "target": "packages/theme/src/utils/contrastFixer.ts",
@@ -3290,7 +3294,8 @@
       ],
       "reason": "Retain internal CSS typography helper; validate enabled viewport ordering before generation. Selected verified MIT package source; Nx alternative excluded pending distribution authority.",
       "adaptation": "Retain internal CSS typography helper; validate enabled viewport ordering before generation.",
-      "result_sha256": "79389e5c9ff67e488e247bec399d865679a45bd7bfd8beb319767e0d1d9c857f"
+      "result_sha256": "7a0785637fabd6c4c2f707a1511706cd9683e1dd9f72842748afb0140ee473dd",
+      "review_adaptation": "Review regression: strict finite increasing fluid ranges; preserve custom keys."
     },
     {
       "target": "packages/theme/src/utils/generatorValidation.ts",
@@ -3550,7 +3555,8 @@
       ],
       "reason": "Replace swallowed errors with scalar own-property resolution, missing/cycle errors and independent light/dark resolution. Selected verified MIT package source; Nx alternative excluded pending distribution authority.",
       "adaptation": "Replace swallowed errors with scalar own-property resolution, missing/cycle errors and independent light/dark resolution.",
-      "result_sha256": "f066d44fc89e2a33f1c7d428dc40420a34e29249d2a759ccb15308b3aa8adb92"
+      "result_sha256": "b5ec3d9df9abdb600d46d5ca9ab9a826023fff96e95f62ae94af9994d8853f09",
+      "review_adaptation": "Review regression: merge properties within partial dark component variants."
     },
     {
       "target": "packages/theme/src/utils/typeSafeTokens.ts",
@@ -3810,7 +3816,8 @@
       ],
       "reason": "Explicit core model/color/reference validation, finite numeric checks and unsafe key/CSS rejection without repair. Selected verified MIT package source; Nx alternative excluded pending distribution authority.",
       "adaptation": "Explicit core model/color/reference validation, finite numeric checks and unsafe key/CSS rejection without repair.",
-      "result_sha256": "471077c23f6deafe15bfc36c1de06ac621cf43631f54c652c9dc5b5166837ad7"
+      "result_sha256": "e98e3a501a76d7c9f410524b7babbd544a40e6d7d3cc7c2fcb3bfbdbbf5c057b",
+      "review_adaptation": "Review regressions: optional dark colors, fluid shape/ranges, font-list and normalized-name validation."
     },
     {
       "target": "packages/theme/theme.schema.json",

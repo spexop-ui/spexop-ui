@@ -83,7 +83,11 @@ export function generateFluidTypographyScale(
     "6xl": 7,
   };
 
-  for (const [key, step] of Object.entries(scaleSteps)) {
+  for (const key of new Set([
+    ...Object.keys(scaleSteps),
+    ...Object.keys(customSizes),
+  ])) {
+    const step = scaleSteps[key as keyof typeof scaleSteps] ?? 0;
     // Check if custom size is defined
     if (customSizes[key]) {
       sizes[key] = generateFluidSize(
@@ -200,48 +204,53 @@ export function validateFluidTypography(config: FluidTypography): {
   errors: string[];
 } {
   const errors: string[] = [];
-
-  if (!config.enabled) {
-    return { valid: true, errors: [] };
+  if (
+    !config ||
+    typeof config !== "object" ||
+    typeof config.enabled !== "boolean"
+  )
+    return {
+      valid: false,
+      errors: ["Expected fluid config with enabled boolean"],
+    };
+  if (!config.enabled) return { valid: true, errors };
+  const ranges = [
+    ["viewport", config.minViewport ?? 320, config.maxViewport ?? 1280],
+    [
+      "multiplier",
+      config.minSizeMultiplier ?? 0.8,
+      config.maxSizeMultiplier ?? 1.2,
+    ],
+  ] as const;
+  for (const [name, min, max] of ranges)
+    if (
+      typeof min !== "number" ||
+      typeof max !== "number" ||
+      !Number.isFinite(min) ||
+      !Number.isFinite(max) ||
+      min <= 0 ||
+      max <= min
+    )
+      errors.push(`${name}: expected positive finite increasing range`);
+  if (config.customSizes !== undefined) {
+    if (
+      !config.customSizes ||
+      typeof config.customSizes !== "object" ||
+      Array.isArray(config.customSizes)
+    )
+      errors.push("Expected customSizes object");
+    else
+      for (const [key, size] of Object.entries(config.customSizes))
+        if (
+          !size ||
+          typeof size.min !== "number" ||
+          typeof size.max !== "number" ||
+          !Number.isFinite(size.min) ||
+          !Number.isFinite(size.max) ||
+          size.min <= 0 ||
+          size.max <= size.min
+        )
+          errors.push(`${key}: expected positive finite increasing min/max`);
   }
-
-  const minViewport = config.minViewport || 320;
-  const maxViewport = config.maxViewport || 1280;
-  const minMultiplier = config.minSizeMultiplier || 0.8;
-  const maxMultiplier = config.maxSizeMultiplier || 1.2;
-
-  if (minViewport >= maxViewport) {
-    errors.push("minViewport must be less than maxViewport");
-  }
-
-  if (minMultiplier >= maxMultiplier) {
-    errors.push("minSizeMultiplier must be less than maxSizeMultiplier");
-  }
-
-  if (minMultiplier < 0.5 || minMultiplier > 1) {
-    errors.push("minSizeMultiplier should be between 0.5 and 1");
-  }
-
-  if (maxMultiplier < 1 || maxMultiplier > 2) {
-    errors.push("maxSizeMultiplier should be between 1 and 2");
-  }
-
-  // Validate custom sizes
-  if (config.customSizes) {
-    for (const [key, sizes] of Object.entries(config.customSizes)) {
-      if (sizes.min >= sizes.max) {
-        errors.push(`Custom size '${key}': min must be less than max`);
-      }
-      if (sizes.min < 8 || sizes.max > 200) {
-        errors.push(
-          `Custom size '${key}': sizes should be between 8px and 200px`,
-        );
-      }
-    }
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors,
-  };
+  return { valid: errors.length === 0, errors };
 }

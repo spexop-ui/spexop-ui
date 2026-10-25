@@ -1,4 +1,6 @@
 import type { SpexopThemeConfig } from "../types/SpexopThemeConfig.js";
+import { validateFluidTypography } from "../utils/fluidTypography.js";
+import { fontFamilies, expandColors } from "../utils/foundationTokens.js";
 import { parseColor } from "../utils/color.js";
 import { resolveTheme } from "../utils/tokenResolver.js";
 export interface ValidationError {
@@ -85,9 +87,9 @@ export function validateTheme(input: unknown): ValidationResult {
     theme.darkMode !== undefined &&
     (!object(theme.darkMode) ||
       typeof theme.darkMode.enabled !== "boolean" ||
-      !object(theme.darkMode.colors))
+      (theme.darkMode.colors !== undefined && !object(theme.darkMode.colors)))
   )
-    fail("darkMode", "Expected enabled boolean and colors object");
+    fail("darkMode", "Expected enabled boolean and optional colors object");
   const seen = new WeakSet<object>();
   function walk(v: unknown, path: string): void {
     if (typeof v === "number" && !Number.isFinite(v))
@@ -146,10 +148,11 @@ export function validateTheme(input: unknown): ValidationResult {
               `typography.weights.${k}`,
               "Font weight must be between 1 and 1000",
             );
-        if (effective.fluidTypography?.enabled) {
-          const f = effective.fluidTypography;
-          if ((f.minViewport ?? 320) >= (f.maxViewport ?? 1280))
-            fail("fluidTypography", "Viewport range must increase");
+        fontFamilies(effective.typography.fontFamily);
+        expandColors(effective.colors);
+        if (effective.fluidTypography) {
+          const fluid = validateFluidTypography(effective.fluidTypography);
+          for (const message of fluid.errors) fail("fluidTypography", message);
         }
         for (const [k, v] of Object.entries(effective.spacing.values ?? {}))
           if (typeof v !== "number" || v < 0)

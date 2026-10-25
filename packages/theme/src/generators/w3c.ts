@@ -1,5 +1,10 @@
 /** DTCG 2025.10 Format/Color subset: independent light/dark token groups. */
 import type { SpexopThemeConfig } from "../types/SpexopThemeConfig.js";
+import {
+  expandSpacing,
+  expandColors,
+  fontFamilies,
+} from "../utils/foundationTokens.js";
 import { assertTheme } from "../validators/validateTheme.js";
 import { colorToDTCG } from "../utils/color.js";
 import { referencePath, resolveTheme } from "../utils/tokenResolver.js";
@@ -12,10 +17,11 @@ const token = (type: string, value: unknown): Token => ({
 const dimension = (n: number) => token("dimension", { value: n, unit: "px" });
 function modeTokens(source: SpexopThemeConfig, mode: "light" | "dark"): Group {
   const effective = resolveTheme(source, mode);
-  const rawColors =
+  const rawColors = expandColors(
     mode === "dark"
       ? { ...source.colors, ...source.darkMode?.colors }
-      : source.colors;
+      : source.colors,
+  );
   const colors: Group = {};
   for (const k of Object.keys(rawColors).sort()) {
     const value = rawColors[k as keyof typeof rawColors]!;
@@ -24,14 +30,7 @@ function modeTokens(source: SpexopThemeConfig, mode: "light" | "dark"): Group {
       throw new Error("DTCG color alias must reference a color token");
     colors[k] = token("color", ref ? `{${mode}.${ref}}` : colorToDTCG(value));
   }
-  const values =
-    effective.spacing.values ??
-    Object.fromEntries(
-      (
-        effective.spacing.scale ??
-        Array.from({ length: 11 }, (_, i) => i * effective.spacing.baseUnit)
-      ).map((v, i) => [i, v]),
-    );
+  const values = expandSpacing(effective.spacing);
   const group: Group = {
     colors,
     spacing: {
@@ -43,7 +42,10 @@ function modeTokens(source: SpexopThemeConfig, mode: "light" | "dark"): Group {
       baseUnit: dimension(effective.spacing.baseUnit),
     },
     typography: {
-      fontFamily: token("fontFamily", effective.typography.fontFamily),
+      fontFamily: token(
+        "fontFamily",
+        fontFamilies(effective.typography.fontFamily),
+      ),
       baseSize: dimension(effective.typography.baseSize),
       scale: token("number", effective.typography.scale),
       weights: Object.fromEntries(
