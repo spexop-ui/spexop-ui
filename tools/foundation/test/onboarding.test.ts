@@ -413,3 +413,19 @@ it("does not silently convert dimensioned values into unitless typography", () =
     ),
   ).toBe(true);
 });
+
+it("reports equal literal values without collapsing distinct semantic roles", () => {
+  const r = analyzeProject(project());
+  expect(r.diagnostics).toContainEqual(
+    expect.objectContaining({
+      code: "SHARED_VALUE",
+      severity: "info",
+      token: expect.stringContaining("dark.colors.textMuted"),
+    }),
+  );
+  expect(
+    r.mappings
+      .filter((m) => m.mode === "dark" && m.value === "#94a3b8")
+      .map((m) => m.target),
+  ).toEqual(["colors.textMuted", "colors.borderStrong"]);
+});

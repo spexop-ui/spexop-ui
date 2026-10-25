@@ -385,6 +385,23 @@ export function analyzeProject(
     });
     assign(config, v.mode === "dark" ? `darkMode.${target}` : target, value);
   }
+  const equalValues = new Map<string, Mapping[]>();
+  for (const mapping of mappings) {
+    const key = `${mapping.mode}:${JSON.stringify(mapping.value)}`;
+    equalValues.set(key, [...(equalValues.get(key) ?? []), mapping]);
+  }
+  for (const group of equalValues.values())
+    if (group.length > 1) {
+      diagnostics.push({
+        code: "SHARED_VALUE",
+        severity: "info",
+        token: group.map((m) => `${m.mode}.${m.target}`).join(", "),
+        source: group[0].source,
+        message:
+          "Several semantic tokens share this literal value; their roles and provenance remain separate.",
+        fix: "Review the listed mappings; equality does not justify merging semantic roles.",
+      });
+    }
   const propose = (target: string, suggested?: Scalar) => {
     const c = decision(
       `value:${target}`,
