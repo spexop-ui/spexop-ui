@@ -1,6 +1,8 @@
 import type { CanonicalDesignModel, Reference } from "./model.js";
 import type { Diagnostic } from "../source-types.js";
 export interface CaptureOptions {
+    /** Explicit native-context metadata capture; default snapshot contract unchanged. */
+    cssContext?: boolean;
     projectRoot: string;
     namespace?: string;
     cssFiles?: readonly string[];

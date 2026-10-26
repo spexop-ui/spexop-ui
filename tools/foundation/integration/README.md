@@ -116,3 +116,13 @@ Exit codes: `0` completed review/operation within scope (partial review may retu
 0), `2` blocked or unaccepted partial output, `1` invalid arguments or IO failure.
 Always read status and exclusions. Existing `pnpm foundation`, `--answers`,
 `--prepare-answers` and legacy `--write` remain separate and unchanged.
+
+### Native context inspection
+
+`pnpm foundation:review /project --css tokens.css --native-context --preview`
+opts into native CSS structure preservation. This is mutually exclusive with
+`--theme-literals`. Multi-file native order is available through the programmatic
+`sourceOrder` option only; the command does not guess application import order.
+Native review explains original-slot/layer requirements and deliberately does not
+offer an additive import as an equivalent transformation. Compiler/import blockers
+cannot be overridden by `--allow-partial`. No source file is rewritten.

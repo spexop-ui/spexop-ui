@@ -4,7 +4,7 @@ import { captureDesignFoundation, type CaptureOptions } from '../capture/index.j
 import { planCanonicalCSS, renderCanonicalCSS, type CSSPlanOptions } from './index.js';
 /** Explicit action: re-capture now, preview/validate before IO, reserve one NEW directory. */
 export function writeCanonicalCSS(captureOptions: CaptureOptions, options: CSSPlanOptions & {outputDirectory:string;allowPartial?:boolean}) {
-  if (!options || Object.keys(options).some(k=>!['outputDirectory','allowPartial','themeLiterals'].includes(k)) || typeof options.outputDirectory !== 'string' || !options.outputDirectory || path.isAbsolute(options.outputDirectory) || options.outputDirectory.split(/[\\/]/).some(p=>!p || p==='.' || p==='..')) throw new TypeError('Output must be a new relative directory within the project.');
+  if (!options || Object.keys(options).some(k=>!['outputDirectory','allowPartial','themeLiterals','preserveNativeContext','sourceOrder'].includes(k)) || typeof options.outputDirectory !== 'string' || !options.outputDirectory || path.isAbsolute(options.outputDirectory) || options.outputDirectory.split(/[\\/]/).some(p=>!p || p==='.' || p==='..')) throw new TypeError('Output must be a new relative directory within the project.');
   const selected = path.resolve(captureOptions.projectRoot);
   if (fs.lstatSync(selected).isSymbolicLink()) throw new Error('Root symlink refused');
   const root = fs.realpathSync(selected), output = path.join(root, options.outputDirectory), parent = path.dirname(output);
@@ -16,7 +16,7 @@ export function writeCanonicalCSS(captureOptions: CaptureOptions, options: CSSPl
   }
   const before = fs.lstatSync(parent);
   const capture = captureDesignFoundation(captureOptions);
-  const plan = planCanonicalCSS(capture, options.themeLiterals ? {themeLiterals:options.themeLiterals}:{});
+  const plan = planCanonicalCSS(capture, {themeLiterals:options.themeLiterals,preserveNativeContext:options.preserveNativeContext,sourceOrder:options.sourceOrder});
   const result = renderCanonicalCSS(plan,{allowPartial:options.allowPartial});
   const after = fs.lstatSync(parent);
   if (after.isSymbolicLink() || before.dev!==after.dev || before.ino!==after.ino || fs.realpathSync(parent)!==parent) throw new Error('Output parent changed');

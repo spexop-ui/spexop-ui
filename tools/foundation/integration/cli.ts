@@ -2,7 +2,7 @@ import { pathToFileURL } from 'node:url';
 import { reviewFoundation, formatIntegrationReview } from './index.js';
 import { renderCanonicalCSS, writeCanonicalCSS } from '../css-export/index.js';
 
-const usage = `Usage: pnpm foundation:review <project> [--css relative.css ...] [--json | --preview | --write NEW-directory] [--allow-partial] [--theme-literals]
+const usage = `Usage: pnpm foundation:review <project> [--css relative.css ...] [--json | --preview | --write NEW-directory] [--allow-partial] [--theme-literals | --native-context]
 Default is read-only review. --preview writes CSS to stdout only; --write explicitly creates a NEW directory.
 Partial CSS needs --allow-partial for preview/write. Preserve original stylesheets. --theme-literals is an explicit context transformation.
 Exit: 0 = review/operation completed within scope; 2 = blocked or partial output not accepted; 1 = invalid input/IO failure. Review exit 0 is NOT application acceptance.\n`;
@@ -11,7 +11,7 @@ export function runIntegrationCLI(args: string[], io: {out:(s:string)=>void;err:
   try {
     const [projectRoot,...rest]=args;
     if(!projectRoot||projectRoot.startsWith('--'))throw Error(usage);
-    const cssFiles:string[]=[];let mode='review',outputDirectory='',allowPartial=false,themeLiterals=false;
+    const cssFiles:string[]=[];let mode='review',outputDirectory='',allowPartial=false,themeLiterals=false,nativeContext=false;
     const seen=new Set<string>();
     for(let i=0;i<rest.length;i++){
       const flag=rest[i];
@@ -25,10 +25,12 @@ export function runIntegrationCLI(args: string[], io: {out:(s:string)=>void;err:
         if(mode!=='review')throw Error('Choose only one of --json, --preview, --write');mode=flag.slice(2);
       }else if(flag==='--allow-partial')allowPartial=true;
       else if(flag==='--theme-literals')themeLiterals=true;
+      else if(flag==='--native-context')nativeContext=true;
       else throw Error(`Unknown option: ${flag}`);
     }
-    const captureOptions={projectRoot,...(cssFiles.length?{cssFiles}:{})};
-    const planOptions=themeLiterals?{themeLiterals:'materialize' as const}:{};
+    const captureOptions={projectRoot,...(nativeContext?{cssContext:true}:{}),...(cssFiles.length?{cssFiles}:{})};
+    if(nativeContext&&themeLiterals)throw Error('Native CSS and Tailwind literal materialization are separate modes');
+    const planOptions=nativeContext?{preserveNativeContext:true}:themeLiterals?{themeLiterals:'materialize' as const}:{};
     const {review,plan}=reviewFoundation(captureOptions,planOptions);
     if(mode==='review'||mode==='json'){
       io.out(mode==='json'?JSON.stringify({review,plan},null,2)+'\n':formatIntegrationReview(review));
