@@ -111,3 +111,7 @@ All three outputs are atomic. Fix source/context blockers before completing miss
 ## Read-only canonical capture (005G)
 
 Use the separate [Capture API](capture/README.md) to inventory source identities, typed value evidence, context and references without Theme mapping or output generation. Its entrypoint is `tools/foundation/dist/capture/index.js`; it builds without Theme artifacts. Existing Foundation answers/writes and fixed Theme output-impact paths remain compatibility projections, not the canonical model contract. Capture acceptance does not close M3 user acceptance.
+
+## Canonical CSS export (005H)
+
+The separate [CSS Export API](css-export/README.md) consumes the canonical model directly. Planning and rendering are read-only; explicit writing creates a new directory. Unsupported declarations remain visible and partial export requires opt-in. This does not change legacy Foundation answers/writes or Theme, Tailwind and DTCG generators.

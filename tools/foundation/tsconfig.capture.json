@@ -1,5 +1,11 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["capture/**/*.ts"],
-  "exclude": ["dist", "test"]
+  "include": [
+    "capture/**/*.ts",
+    "css-export/**/*.ts"
+  ],
+  "exclude": [
+    "dist",
+    "test"
+  ]
 }
