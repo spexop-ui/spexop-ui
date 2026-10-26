@@ -107,3 +107,7 @@ The existing JSON now exposes `review` with six review sections:
 - `outputImpact`: possible Theme target paths, CSS/Tailwind token names or explicitly marked wildcard families, DTCG paths, and the files blocked by each unresolved decision. An unmapped source has `unassigned` impact; token names are not invented. These are conditional projection descriptions, not complete downstream dependency or active UI usage proofs. Tailwind embeds the CSS output as well as its own namespace exports.
 
 All three outputs are atomic. Fix source/context blockers before completing missing Theme fields; filling answers does not make unsupported graph results pass. No accept-all mode, source edits or new interactive UI was introduced. The report is a developer review aid, not a novice UX or M3 product acceptance claim.
+
+## Read-only canonical capture (005G)
+
+Use the separate [Capture API](capture/README.md) to inventory source identities, typed value evidence, context and references without Theme mapping or output generation. Its entrypoint is `tools/foundation/dist/capture/index.js`; it builds without Theme artifacts. Existing Foundation answers/writes and fixed Theme output-impact paths remain compatibility projections, not the canonical model contract. Capture acceptance does not close M3 user acceptance.

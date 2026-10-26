@@ -1,6 +1,18 @@
 {
   "extends": "../../tsconfig.json",
-  "compilerOptions": { "rootDir": ".", "outDir": "dist", "types": ["node"] },
-  "include": ["*.ts"],
-  "exclude": ["dist", "test"]
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "*.ts",
+    "capture/**/*.ts"
+  ],
+  "exclude": [
+    "dist",
+    "test"
+  ]
 }
