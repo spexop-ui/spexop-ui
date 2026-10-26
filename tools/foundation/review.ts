@@ -88,6 +88,10 @@ export function createDiscoveryReview(input: Input): DiscoveryReview {
   }
   const unresolvedNodes=new Map<string,Resolution[]>();
   for(const r of input.graph.resolutions)if(r.status!=="resolved")unresolvedNodes.set(r.nodeId,[...(unresolvedNodes.get(r.nodeId)??[]),r]);
+  const diagnosticBlocks=new Map<string,string[]>();
+  for(const d of input.diagnostics) if(d.source && (d.severity==="error" || d.severity==="unsupported")) {
+    for(const id of byLocation.get(locationKey(d.source))??[]) diagnosticBlocks.set(id,[...(diagnosticBlocks.get(id)??[]),d.code]);
+  }
   const unsupported:DiscoveryReview["unsupportedExcluded"]=[...unresolvedNodes].map(([sourceId,rs])=>({sourceId,
     classification:rs.some(r=>r.status==="unsupported"||r.status==="derived")?"unsupported":"reference-blocker",
     reason:rs.map(r=>`${r.mode}: ${r.status}${r.reason?` — ${r.reason}`:""}`).join("; "),repair:"Inspect source/context; semantic answers cannot resolve an unsupported CSS computation.",blockedFiles:input.plannedOutputPaths}));
@@ -100,7 +104,7 @@ export function createDiscoveryReview(input: Input): DiscoveryReview {
   return {schemaVersion:1,discoveredSources:input.graph.nodes.map(({id,name,rawValue,kind,context,provenance})=>({id,name,rawValue,kind,context,provenance})),
     resolvedAliases:input.graph.resolutions.filter(r=>r.status==="resolved"&&nodes.get(r.nodeId)?.kind==="alias").map(r=>({...r,...trace(r.nodeId,r.mode)})),
     semanticProposals:input.graph.nodes.flatMap(n=>n.candidates.map(c=>({sourceId:n.id,target:c.target,certainty:"proposal" as const,source:n.provenance,context:n.context,
-      appliedModes:input.mappings.filter(m=>m.sourceId===n.id&&m.target===c.target).map(m=>m.mode),editableVia:unresolvedNodes.has(n.id)?undefined:`map:${n.id}`,blockedBy:(unresolvedNodes.get(n.id)??[]).map(r=>`${r.mode}:${r.status}`)}))),
+      appliedModes:input.mappings.filter(m=>m.sourceId===n.id&&m.target===c.target).map(m=>m.mode),editableVia:unresolvedNodes.has(n.id)?undefined:`map:${n.id}`,blockedBy:[...new Set([...(unresolvedNodes.get(n.id)??[]).map(r=>`${r.mode}:${r.status}`),...(diagnosticBlocks.get(n.id)??[])])]}))),
     defaultProposals:input.proposed,requiredDecisions:required,recordedDecisions:input.manual_decisions.filter(d=>d.resolved),unsupportedExcluded:unsupported,outputImpact:impacts,
     limits:[...input.graph.limits,"Alias chains display up to 32 steps; continuesAt links to the complete graph, no source edges are discarded.","Output impact is a conditional model projection, not proof of active application usage or complete downstream dependency closure."]};
 }

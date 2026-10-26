@@ -6,6 +6,14 @@ import { analyzeProject, createAnswersTemplate } from "../index.js";
 const dirs:string[]=[];
 function project(css:string){const p=fs.mkdtempSync(path.join(os.tmpdir(),"spx-review-"));dirs.push(p);fs.writeFileSync(path.join(p,"tokens.css"),css);return p;}
 afterEach(()=>{for(const p of dirs.splice(0))fs.rmSync(p,{recursive:true,force:true});});
+it("shows value-validation blockers next to semantic proposals even when CSS resolution succeeds",()=>{
+ const r=analyzeProject(project(":root { --spacing: 0.25rem; }"));
+ const id=r.found[0].id;
+ expect(r.graph.resolutions.find(x=>x.nodeId===id)?.status).toBe("resolved");
+ expect(r.review.semanticProposals.find(x=>x.sourceId===id)?.blockedBy).toContain("UNSUPPORTED_UNIT");
+ expect(r.review.unsupportedExcluded.some(x=>x.sourceId===id&&x.reason.includes("UNSUPPORTED_UNIT"))).toBe(true);
+ expect(r.ok).toBe(false);expect(r.outputs).toEqual([]);
+});
 it("reports every original source and explains unresolved semantic alias chains without invented output names",()=>{
  const p=project(":root { --custom: #123456; --role: var(--custom); }");const r=analyzeProject(p);
  expect(r.review.discoveredSources.map(s=>s.id)).toEqual(r.found.map(s=>s.id));
