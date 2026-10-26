@@ -123,7 +123,10 @@ export function planCanonicalCSS(model: CanonicalDesignModel, options: CSSPlanOp
   const included = entries.filter(e => e.output).sort((a,b) => a.provenance.file < b.provenance.file ? -1 : a.provenance.file > b.provenance.file ? 1 : a.provenance.line - b.provenance.line || a.provenance.column - b.provenance.column);
   // Preserve declaration ordering; no selector regrouping across intervening rules.
   const rules: CSSExportPlan['rules'] = included.map(e => ({...e.output!,declarations:[{tokenId:e.tokenId,name:e.name,value:e.value}]}));
-  const blockers = model.diagnostics.filter(d => ['CSS_PARSE','ROOT_INVALID','INPUT_OUTSIDE_SCOPE','ENUMERATION_FAILED','SCOPE_LIMIT','SOURCE_REFUSED','NO_TOKENS'].includes(d.code)).map(d => ({code:d.code,message:d.message}));
+  const blockers = model.diagnostics.filter(d => ['CSS_IDENTITY_UNSUPPORTED','CSS_PARSE','ROOT_INVALID','INPUT_OUTSIDE_SCOPE','ENUMERATION_FAILED','SCOPE_LIMIT','SOURCE_REFUSED','NO_TOKENS'].includes(d.code)).map(d => ({code:d.code,message:d.message}));
+  // CSS escapes can denote the same identifier as a supported ASCII spelling.
+  // Without decoding/proving identity we cannot certify family closure, even for partial output.
+  if (entries.some(e => e.name.includes('\\'))) blockers.push({code:'ESCAPED_IDENTITY',message:'Escaped custom-property names may overlap included families; export is blocked until identity can be proved.'});
   const excluded = entries.length - included.length;
   const plan: CSSExportPlan = {schemaVersion:'0.1', namespace:model.namespace, status:blockers.length || !included.length ? 'blocked' : excluded ? 'partial' : 'ready', entries, rules, blockers,
     coverage:{captured:entries.length,eligible:included.length,excluded,aliases:included.filter(e=>e.references.length).length,exact:included.filter(e=>e.status==='exact-preservation').length,transformed:included.filter(e=>e.status==='safe-transformation').length,semanticMappings:0},

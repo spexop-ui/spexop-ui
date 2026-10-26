@@ -88,3 +88,11 @@ complex dark selectors/media and aliases; that limitation is preserved in eviden
 References:
 - https://www.w3.org/TR/css-variables-1/ (alias computation/inheritance)
 - https://tailwindcss.com/docs/theme (inline versus ordinary theme variables)
+
+## 005I identity safety repair
+
+Escaped property/at-rule/registration identities now block export when exclusion
+closure cannot be proved (including escaped leading dashes that were not inventoried
+as `--` declarations). Registration names are checked case-insensitively. This is a
+conservative restriction, not an escape decoder or full cascade engine. Diagnostics
+retain source locations. See [CSS identifier escaping](https://www.w3.org/TR/css-syntax-3/#escaping).

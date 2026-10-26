@@ -10,7 +10,8 @@
   "include": [
     "*.ts",
     "capture/**/*.ts",
-    "css-export/**/*.ts"
+    "css-export/**/*.ts",
+    "integration/**/*.ts"
   ],
   "exclude": [
     "dist",

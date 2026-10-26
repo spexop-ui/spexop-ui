@@ -115,3 +115,12 @@ Use the separate [Capture API](capture/README.md) to inventory source identities
 ## Canonical CSS export (005H)
 
 The separate [CSS Export API](css-export/README.md) consumes the canonical model directly. Planning and rendering are read-only; explicit writing creates a new directory. Unsupported declarations remain visible and partial export requires opt-in. This does not change legacy Foundation answers/writes or Theme, Tailwind and DTCG generators.
+
+## Canonical integration review (005I)
+
+Start with the [short integration guide](integration/README.md):
+`pnpm foundation:review /absolute/project` after the workspace build. The default
+is a read-only summary over Capture and CSS Export Plan, with full JSON detail and
+explicit preview/write options. No fixed Theme mapping or source edits. Keep all
+original stylesheets; application acceptance requires manual integration and a
+source/output browser comparison. This is separate from the legacy command above.

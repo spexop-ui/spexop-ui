@@ -13,7 +13,16 @@ export function parseCSSSources(sources: readonly CSSSnapshot[]) {
     try {
       const sha = createHash("sha256").update(css).digest("hex");
       const tree = postcss.parse(css, { from: file });
-      tree.walkAtRules("property", rule => { registered.add(rule.params.trim()); });
+      const uncertainIdentity = (node: {source?: {start?: {line: number; column: number}}}) => {
+        diagnostics.push({code:"CSS_IDENTITY_UNSUPPORTED",severity:"unsupported",
+          message:"Escaped CSS property or registration identity may overlap another token; export cannot prove exclusion closure.",
+          source:{file,line:node.source?.start?.line??1,column:node.source?.start?.column??1},
+          fix:"Keep source CSS intact; identity decoding/registration needs separate support before export."});
+      };
+      tree.walkAtRules(rule => {
+        if (rule.name.includes("\\") || (rule.name.toLowerCase() === "property" && rule.params.includes("\\"))) uncertainIdentity(rule);
+        if (rule.name.toLowerCase() === "property") registered.add(rule.params.trim());
+      });
       tree.walkAtRules("import", (rule) => {
         diagnostics.push({
           code: "IMPORT_NOT_FOLLOWED",
@@ -29,6 +38,7 @@ export function parseCSSSources(sources: readonly CSSSnapshot[]) {
         });
       });
       tree.walkDecls((decl) => {
+        if (decl.prop.includes("\\")) uncertainIdentity(decl);
         if (!decl.prop.startsWith("--")) return;
         const source = {
           file,
