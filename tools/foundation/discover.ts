@@ -15,6 +15,7 @@ const excluded = new Set([
 const dark =
   /^(?:\.dark|html\.dark|:root\.dark|\[data-theme=["']dark["']\]|html\[data-theme=["']dark["']\]|:root\[data-theme=["']dark["']\])$/;
 export function discover(project: string, options: Options = {}) {
+  const registered = new Set<string>();
   const root = path.resolve(project);
   if (fs.lstatSync(root).isSymbolicLink() || !fs.statSync(root).isDirectory())
     throw new Error("Project must be a real directory");
@@ -79,6 +80,7 @@ export function discover(project: string, options: Options = {}) {
     hash.update(file).update("\0").update(css);
     try {
       const tree = postcss.parse(css, { from: abs });
+      tree.walkAtRules("property", rule => { registered.add(rule.params.trim()); });
       tree.walkAtRules("import", (rule) => {
         diagnostics.push({
           code: "IMPORT_NOT_FOLLOWED",
@@ -148,6 +150,12 @@ export function discover(project: string, options: Options = {}) {
             fix: "Supply a literal or a simple var(--name) alias in a supported token source.",
           });
         }
+        const ancestors: string[] = [];
+        let ancestor = parent?.parent;
+        while (ancestor && ancestor.type !== "root") {
+          ancestors.push(ancestor.type === "atrule" ? `@${ancestor.name} ${ancestor.params}` : ancestor.type === "rule" ? ancestor.selector : ancestor.type);
+          ancestor = ancestor.parent;
+        }
         found.push({
           id: `${file}:${source.line}:${source.column}:${decl.prop}`,
           variable: decl.prop,
@@ -157,6 +165,7 @@ export function discover(project: string, options: Options = {}) {
           source,
           supported,
           origin: theme ? "tailwind-theme" : "css",
+          ancestors,
         });
       });
     } catch (error) {
@@ -169,6 +178,12 @@ export function discover(project: string, options: Options = {}) {
         fix: "Fix the CSS syntax before generating outputs.",
       });
     }
+  }
+  for (const value of found) if (registered.has(value.variable) || [...value.value.matchAll(/var\(\s*(--[\w-]+)/g)].some(m => registered.has(m[1]))) {
+    value.supported = false;
+    diagnostics.push({code:"REGISTERED_PROPERTY",severity:"unsupported",token:value.variable,source:value.source,
+      message:"@property registration can change syntax, inheritance and initial value; registration evaluation is unsupported.",
+      fix:"Inspect registered CSS behavior separately; do not substitute the declaration as an unregistered variable."});
   }
   if (!found.length)
     diagnostics.push({
