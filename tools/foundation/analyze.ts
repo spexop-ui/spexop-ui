@@ -119,6 +119,15 @@ export function analyzeProject(
     { found, diagnostics, inputHash, scope } = discovery;
   const graph = buildTokenGraph(found, targetFor);
   const redundant = redundantAliasIds(graph);
+  const graphNodes = new Map(graph.nodes.map(n => [n.id, n]));
+  const graphBlocked = new Set<string>();
+  for (const resolution of graph.resolutions) if (resolution.status !== "resolved") {
+    graphBlocked.add(resolution.nodeId);
+    const node = graphNodes.get(resolution.nodeId)!;
+    diagnostics.push({code: "GRAPH_RESOLUTION", severity: "unsupported", token: node.name, source: node.provenance,
+      message: `${resolution.mode}: ${resolution.status}. ${resolution.reason ?? "No supported unique scalar resolution."}`,
+      fix: "Review source context/reference or explicitly narrow CSS scope; a semantic answer cannot repair CSS resolution."});
+  }
   const canonicalSources = new Map<string, Set<string>>();
   for (const r of graph.resolutions) if (r.canonicalSourceId) {
     const sources = canonicalSources.get(r.nodeId) ?? new Set<string>();
@@ -176,7 +185,7 @@ export function analyzeProject(
     target: string;
     method: "name-rule" | "user";
   }> = [];
-  for (const v of found.filter((x) => x.supported && (!redundant.has(x.id) || Object.hasOwn(choices, `map:${x.id}`)))) {
+  for (const v of found.filter((x) => x.supported && !graphBlocked.has(x.id) && (!redundant.has(x.id) || Object.hasOwn(choices, `map:${x.id}`)))) {
     let target = targetFor(v),
       method: "name-rule" | "user" = "name-rule";
     if (!target) {
