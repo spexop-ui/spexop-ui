@@ -96,3 +96,51 @@ closure cannot be proved (including escaped leading dashes that were not invento
 as `--` declarations). Registration names are checked case-insensitively. This is a
 conservative restriction, not an escape decoder or full cascade engine. Diagnostics
 retain source locations. See [CSS identifier escaping](https://www.w3.org/TR/css-syntax-3/#escaping).
+
+## Native CSS context preservation (005J, explicit opt-in)
+
+```ts
+const capture = captureDesignFoundation({projectRoot, cssContext: true});
+const plan = planCanonicalCSS(capture, {preserveNativeContext: true});
+const preview = renderCanonicalCSS(plan); // partial still requires allowPartial
+```
+
+This mode preserves native named, nested and anonymous `@layer` blocks, layer-order
+statements, first introductions (including empty layers), supported root/dark
+selectors and declaration order. `cssDocuments` carries bounded source text/hash
+and structural slots; export re-parses and verifies this evidence against the
+canonical token/context projection. Serialized captures can be re-used. Hashes
+bind the supplied snapshot; they do not authenticate its origin or commit.
+
+Raw custom-property channel values such as `220 70% 50%` can survive unchanged.
+Their type remains unconfirmed. The consuming `hsl(var(--primary))` rule stays in
+the original stylesheet: this exporter does not infer a color or emit that rule.
+Aliases are preserved, not flattened; no new cascade winner or `resolved` claim
+is created. Potential cycles across contexts are conservatively excluded.
+
+For multiple source files an exact `sourceOrder: ['first.css', 'second.css']` is
+required. It is **caller asserted** and must match actual loading; filenames do
+not prove order. Native import graphs are not followed. `@tailwind`, `@apply`,
+`@theme`/`inline`, and other compiler directives block this mode, including partial
+export. A separately traced compiler-produced artifact may be examined as a new
+input; its counts must not replace raw-source counts.
+
+Excluded: unsupported selectors/conditions, registration, `!important`, CSS-wide
+keywords, fallbacks/derived expressions, URLs, escaped or commented value syntax,
+and aliases whose complete same-name dependency family cannot be preserved.
+The default 005H exporter, Theme generators and legacy answer/write flow are unchanged.
+
+**Structural preservation is not deployment guidance.** A standalone token CSS
+file omits ordinary rules and excluded tokens. It cannot replace a stylesheet;
+adding it as a second import is not generally equivalent either. Especially,
+splitting one anonymous layer into two changes its identity. Same-slot placement,
+retained rules, DOM, viewport, mode and load order must be verified separately.
+The acceptance scripts reconstruct only eligible declaration nodes in disposable
+artifacts, at their original positions. This is an experiment, not a new source
+rewriting API or a completed novice integration workflow.
+
+The local `scripts/verify-native-browser.mjs` experiment compares source/output
+and deliberately flattened/reversed negative controls in real Chromium.
+`scripts/verify-compiled-css.mjs` checks a one-stylesheet compiler artifact without
+editing the application source. Both preserve ordinary and excluded CSS.
+See [equivalence contract](equivalence.md) for the exact claim boundary.

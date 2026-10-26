@@ -1,3 +1,5 @@
+import { nativeCSSPlan } from './native.js';
+import type { CSSDocumentContext } from '../capture/css-context.js';
 import postcss from 'postcss';
 import { createHash } from 'node:crypto';
 import { assertModel, type CanonicalDesignModel, type CanonicalToken, type Context } from '../capture/model.js';
@@ -7,6 +9,8 @@ import { buildTokenGraph } from '../graph.js';
 import type { FoundValue } from '../source-types.js';
 export { writeCanonicalCSS } from './write.js';
 export interface CSSPlanOptions {
+  preserveNativeContext?: boolean;
+  sourceOrder?: readonly string[];
   /** Explicit opt-in: materialize literal @theme variables in :root, :host.
    * Does NOT reproduce utilities, Tailwind pruning or @theme inline alias semantics. */
   themeLiterals?: 'materialize';
@@ -26,6 +30,7 @@ export interface CSSPlanEntry {
 }
 export interface CSSExportPlan {
   schemaVersion: '0.1';
+  nativeContext?: {css:string;sourceOrder:readonly string[];orderEvidence:string;documents:CSSDocumentContext[];resolution:'preserved-not-evaluated'};
   namespace: string;
   status: 'ready' | 'partial' | 'blocked';
   entries: CSSPlanEntry[];
@@ -57,7 +62,8 @@ function declarationMatches(t: CanonicalToken): boolean {
 /** Read-only, no Theme roles or generators. Retains every excluded record in the plan. */
 export function planCanonicalCSS(model: CanonicalDesignModel, options: CSSPlanOptions = {}): CSSExportPlan {
   assertModel(model);
-  if (Object.keys(options).some(k => k !== 'themeLiterals') || (options.themeLiterals !== undefined && options.themeLiterals !== 'materialize')) throw new TypeError('Invalid CSS plan options');
+  if (Object.keys(options).some(k => !['themeLiterals','preserveNativeContext','sourceOrder'].includes(k)) || (options.preserveNativeContext!==undefined&&typeof options.preserveNativeContext!=='boolean') || (options.sourceOrder!==undefined&&(!Array.isArray(options.sourceOrder)||options.sourceOrder.some(s=>typeof s!=='string')||!options.preserveNativeContext)) || (options.preserveNativeContext&&options.themeLiterals!==undefined) || (options.themeLiterals !== undefined && options.themeLiterals !== 'materialize')) throw new TypeError('Invalid CSS plan options');
+  if(options.preserveNativeContext){const plan=nativeCSSPlan(model,options);authentic.add(plan);return freeze(plan);}
   const contexts = new Map(model.contexts.map(c => [c.id, c]));
   // Recheck the supplied graph against lexical references and contexts; missing/forged scope records cannot certify export.
   const found: FoundValue[] = model.tokens.map(t => {
@@ -142,10 +148,10 @@ export function planCanonicalCSS(model: CanonicalDesignModel, options: CSSPlanOp
 export function renderCanonicalCSS(plan: CSSExportPlan, options: {allowPartial?: boolean} = {}) {
   if (!authentic.has(plan) || Object.keys(options).some(k=>k!=='allowPartial') || (options.allowPartial !== undefined && typeof options.allowPartial !== 'boolean')) throw new TypeError('Use an unmodified planCanonicalCSS result and valid render options');
   if (plan.status === 'blocked' || (plan.status === 'partial' && !options.allowPartial)) throw new Error('CSS export blocked; inspect exclusions or explicitly accept partial output.');
-  const css = '/* Spexop canonical CSS: '+plan.status+'; see export plan for scope and exclusions. */\n' + plan.rules.map(r => {
+  const css = '/* Spexop canonical CSS: '+plan.status+'; see export plan for scope and exclusions. */\n' + (plan.nativeContext ? plan.nativeContext.css : plan.rules.map(r => {
     const body = `${r.selector} {\n${r.declarations.map(d=>`  ${d.name}: ${d.value};`).join('\n')}\n}`;
     return body;
-  }).join('\n')+'\n';
+  }).join('\n'))+'\n';
   const parsed = postcss.parse(css), decls: Array<{name:string;value:string}> = [];
   parsed.walkDecls(d=>{decls.push({name:d.prop,value:d.value});});
   if (JSON.stringify(decls) !== JSON.stringify(plan.rules.flatMap(r=>r.declarations.map(d=>({name:d.name,value:d.value}))))) throw new Error('CSS serialization round-trip failed');

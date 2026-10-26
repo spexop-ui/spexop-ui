@@ -64,3 +64,9 @@ Shared `parse-css.ts` and `source-types.ts` isolate parsing/types from IO and Th
 Run `pnpm check` for Theme/Foundation/capture regressions. `scripts/verify-capture.mjs` accepts the existing four-project manifest, the 005F baseline directory and a NEW artifact directory. It checks 312 declarations, exact corrected source slices, types, contexts, provenance, references, determinism and unchanged file hashes. Source fixtures are local and never copied into this repo.
 
 Pure capture does not generate a visual app; no browser acceptance is implied. 312/312 representation does not mean 312 exporter-ready tokens or known application semantics. M3 user acceptance stays open. A later separately approved Theme integration could add one generic CSS export planner with explicit coverage; no exporter migration is included here.
+
+`cssContext: true` additionally captures bounded `cssDocuments`: original CSS text,
+SHA-256, ordered rule/declaration slots, layer introductions and unsupported compiler
+or import context. Default capture JSON is unchanged. This evidence supports native
+CSS planning; it is not a full cascade evaluator or a new `resolved` assertion.
+Source text is retained only for inspected CSS files, under the same size/path limits.

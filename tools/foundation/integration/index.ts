@@ -70,6 +70,16 @@ export function reviewFoundation(options: CaptureOptions, planOptions: CSSPlanOp
       'If any unexpected computed-style difference appears, remove only the newly added import and stop. Do not fix the source automatically. Identical styles demonstrate only this tested integration, not new visual capability or whole-CSS equivalence.'
     ],limits:[...capture.limits,...plan.limits]
   };
+  if(plan.nativeContext){
+    review.risks.push('Native layers must retain their original introduction order and identity, especially anonymous layers. Separate generated imports are not a demonstrated integration.');
+    if(plan.status!=='blocked')review.steps=[
+      'Review the hash-bound native source structure, excluded families, layer introductions and declared source order. Multi-file order is caller asserted, not inferred.',
+      'Preview only. Preserve all original CSS. No application imports or declarations are changed by this API.',
+      'Behavioral proof requires supported declarations in the same original slots and layers, with identical retained ordinary/excluded rules. A generated import is not equivalent by default.',
+      'Use a disposable verification harness or independently reviewed source-slot integration. Native export does not provide a source rewriter or automatic integration command.',
+      'Compare computed styles with identical DOM, viewport, mode and load conditions; include wrong-order/layer controls. Stop on any difference. M3 user acceptance remains separate.'
+    ];
+  }
   return {review,plan};
 }
 /** Compact default view; complete per-token records remain available via JSON. */

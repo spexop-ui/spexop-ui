@@ -1,3 +1,4 @@
+import { captureCSSContexts } from './css-context.js';
 import { readSources } from "./sources.js";
 import { modelFromCSS } from "./css-adapter.js";
 import { parseCSSSources } from "../parse-css.js";
@@ -8,7 +9,8 @@ export { assertModel } from "./model.js";
 /** Synchronous read-only capture. Never evaluates project code or writes a file. */
 export function captureDesignFoundation(options: CaptureOptions): CaptureResult {
     if (!options || typeof options.projectRoot !== "string" || !options.projectRoot.trim() ||
-        Object.keys(options).some(k => !["projectRoot", "namespace", "cssFiles", "sourceCommit"].includes(k)) ||
+        Object.keys(options).some(k => !["projectRoot", "namespace", "cssFiles", "sourceCommit", "cssContext"].includes(k)) ||
+        (options.cssContext !== undefined && typeof options.cssContext !== "boolean") ||
         (options.cssFiles !== undefined && (!Array.isArray(options.cssFiles) || options.cssFiles.some(f => typeof f !== "string"))) ||
         (options.sourceCommit !== undefined && (typeof options.sourceCommit !== "string" || !/^[a-f0-9]{40,64}$/i.test(options.sourceCommit))))
         throw new TypeError("Invalid capture options; only read-only projectRoot, namespace, cssFiles and sourceCommit are accepted.");
@@ -18,6 +20,7 @@ export function captureDesignFoundation(options: CaptureOptions): CaptureResult 
     const input = readSources(options.projectRoot, options.cssFiles);
     const parsed = parseCSSSources(input.snapshots);
     const model = modelFromCSS(parsed, namespace, options.sourceCommit);
+    if (options.cssContext && !parsed.diagnostics.some(d=>d.code==="CSS_PARSE")) model.cssDocuments = captureCSSContexts(input.snapshots,model.tokens);
     const diagnostics: CaptureDiagnostic[] = [...input.diagnostics, ...parsed.diagnostics];
     for (const d of parsed.diagnostics)
         if (d.code === "CSS_PARSE") {

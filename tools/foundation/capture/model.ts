@@ -1,3 +1,4 @@
+import type { CSSDocumentContext } from './css-context.js';
 /** Canonical capture contract v0.1. No Theme roles, CSS evaluator, IO or framework dependency. */
 export type TokenType = "color" | "dimension" | "percentage" | "number" | "fontFamily" | "fontWeight" | "typography" | "shadow" | "border" | "duration" | "cubicBezier";
 export type Literal = {
@@ -122,6 +123,8 @@ export interface ReferenceResolution {
     reason: string;
 }
 export interface CanonicalDesignModel {
+    /** Optional ordered CSS source slots; not a cascade-resolution certificate. */
+    cssDocuments?: CSSDocumentContext[];
     schemaVersion: "0.1";
     namespace: string;
     contexts: Context[];
