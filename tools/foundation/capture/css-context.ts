@@ -37,7 +37,7 @@ export function captureCSSContexts(snapshots: readonly CSSSnapshot[], tokens: Ca
         const unsupported: CSSDocumentContext['unsupported'] = [];
         const id = (n: ChildNode) => `${file}:${n.source?.start?.offset ?? -1}`;
         const issue = (n: ChildNode, code: string, message: string) => unsupported.push({ code, line: n.source?.start?.line ?? 1, message });
-        const root = postcss.parse(css, { from: file });
+        const root = postcss.parse(css, { from: file, map: false });
         root.walkAtRules(n => {
             const name = n.name.toLowerCase();
             if (['import', 'tailwind', 'apply', 'theme', 'reference', 'config', 'plugin', 'utility', 'variant', 'custom-variant', 'source'].includes(name))
@@ -90,7 +90,7 @@ export function verifyCSSContexts(docs: readonly CSSDocumentContext[], model: Ca
                 return false;
             const local = tokens.filter(t => t.provenance.file === d.file);
             const declarations = new Map<string, postcss.Declaration>();
-            postcss.parse(d.sourceText).walkDecls(n => { declarations.set(`${n.source?.start?.line}:${n.source?.start?.column}`, n); });
+            postcss.parse(d.sourceText, { map: false }).walkDecls(n => { declarations.set(`${n.source?.start?.line}:${n.source?.start?.column}`, n); });
             for (const t of local) {
                 const n = declarations.get(`${t.provenance.line}:${t.provenance.column}`);
                 if (!n || n.prop !== t.identity.sourceName || n.value !== t.value.raw || n.source!.input.css.slice(n.source?.start?.offset, n.source?.end?.offset ?? -1) !== t.provenance.rawDeclaration || !!n.important !== t.provenance.important || t.provenance.fileSha256 !== d.sha256)

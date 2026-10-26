@@ -12,7 +12,7 @@ export function parseCSSSources(sources: readonly CSSSnapshot[]) {
   for (const { file, css } of sources) {
     try {
       const sha = createHash("sha256").update(css).digest("hex");
-      const tree = postcss.parse(css, { from: file });
+      const tree = postcss.parse(css, { from: file, map: false });
       const uncertainIdentity = (node: {source?: {start?: {line: number; column: number}}}) => {
         diagnostics.push({code:"CSS_IDENTITY_UNSUPPORTED",severity:"unsupported",
           message:"Escaped CSS property or registration identity may overlap another token; export cannot prove exclusion closure.",

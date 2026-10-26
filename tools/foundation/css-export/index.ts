@@ -51,7 +51,7 @@ function declarationMatches(t: CanonicalToken): boolean {
   // Reparse the exact source slice and value separately. No raw text is allowed to inject rules.
   try {
     for (const text of [t.provenance.rawDeclaration, `${t.identity.sourceName}: ${t.value.raw};`]) {
-      const ast = postcss.parse(`:root {${text}}`), rule = ast.nodes[0];
+      const ast = postcss.parse(`:root {${text}}`, { map: false }), rule = ast.nodes[0];
       if (ast.nodes.length !== 1 || rule.type !== 'rule' || rule.nodes.length !== 1) return false;
       const d = rule.nodes[0];
       if (d.type !== 'decl' || d.prop !== t.identity.sourceName || d.value !== t.value.raw || !!d.important !== t.provenance.important) return false;
@@ -152,7 +152,7 @@ export function renderCanonicalCSS(plan: CSSExportPlan, options: {allowPartial?:
     const body = `${r.selector} {\n${r.declarations.map(d=>`  ${d.name}: ${d.value};`).join('\n')}\n}`;
     return body;
   }).join('\n'))+'\n';
-  const parsed = postcss.parse(css), decls: Array<{name:string;value:string}> = [];
+  const parsed = postcss.parse(css, { map: false }), decls: Array<{name:string;value:string}> = [];
   parsed.walkDecls(d=>{decls.push({name:d.prop,value:d.value});});
   if (JSON.stringify(decls) !== JSON.stringify(plan.rules.flatMap(r=>r.declarations.map(d=>({name:d.name,value:d.value}))))) throw new Error('CSS serialization round-trip failed');
   return {status:plan.status,css,sha256:hash(css),declarations:decls.length,excluded:plan.coverage.excluded};
