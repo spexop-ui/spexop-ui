@@ -11,7 +11,8 @@
     "*.ts",
     "capture/**/*.ts",
     "css-export/**/*.ts",
-    "integration/**/*.ts"
+    "integration/**/*.ts",
+    "build-context/**/*.ts"
   ],
   "exclude": [
     "dist",

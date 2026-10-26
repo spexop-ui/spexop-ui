@@ -55,7 +55,7 @@ export function nativeCSSPlan(model: CanonicalDesignModel, options: CSSPlanOptio
     const validDeclaration = (t: CanonicalToken) => {
         try {
             for (const raw of [t.provenance.rawDeclaration, `${t.identity.sourceName}:${t.value.raw};`]) {
-                const ast = postcss.parse(`:root{${raw}}`), r = ast.nodes[0];
+                const ast = postcss.parse(`:root{${raw}}`, { map: false }), r = ast.nodes[0];
                 if (ast.nodes.length !== 1 || r.type !== 'rule' || r.nodes.length !== 1)
                     return false;
                 const d = r.nodes[0];
