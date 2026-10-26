@@ -58,6 +58,7 @@ export interface Options {
   decisions?: Record<string, Choice>;
 }
 export interface Analysis {
+  review: import("./review.js").DiscoveryReview;
   ok: boolean;
   inputHash: string;
   scope: string[];

@@ -9,6 +9,7 @@ import {
 } from "@spexop/theme";
 import { defaultRules } from "./defaults.js";
 import { buildTokenGraph, redundantAliasIds } from "./graph.js";
+import { createDiscoveryReview } from "./review.js";
 import { discover } from "./discover.js";
 import type {
   Analysis,
@@ -188,7 +189,7 @@ export function analyzeProject(
   for (const v of found.filter((x) => x.supported && !graphBlocked.has(x.id) && (!redundant.has(x.id) || Object.hasOwn(choices, `map:${x.id}`)))) {
     let target = targetFor(v),
       method: "name-rule" | "user" = "name-rule";
-    if (!target) {
+    if (!target || Object.hasOwn(choices, `map:${v.id}`)) {
       const opts =
         v.variable === "--muted"
           ? ["colors.textMuted", "colors.surfaceSecondary"]
@@ -200,7 +201,7 @@ export function analyzeProject(
         {
           kind: "mapping",
           source: v.source,
-          reason: `No unambiguous semantic rule for ${v.variable}. Ignore or choose a supported target.`,
+          reason: target ? `Review/edit the name-rule proposal ${target} for ${v.variable}; this is not proven UI intent.` : `No unambiguous semantic rule for ${v.variable}. Ignore or choose a supported target.`,
           options: opts,
         },
         (c) =>
@@ -645,7 +646,7 @@ export function analyzeProject(
         fix: "Correct the theme; no outputs were written.",
       });
     }
-  return {
+  const result: Omit<Analysis, "review"> = {
     ok: !blocked() && outputs.length === 3,
     inputHash,
     scope,
@@ -675,4 +676,5 @@ export function analyzeProject(
       unresolvedDecisions: decisions.filter((x) => !x.resolved).length,
     },
   };
+  return {...result, review: createDiscoveryReview(result)};
 }

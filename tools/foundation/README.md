@@ -94,3 +94,16 @@ The 15 scalar answers in the 005B baseline classify as **2 A / 11 B / 2 C**. A: 
 The original 005D acceptance is historical. Its conditional `resolved` counts were too broad: inherited aliases, non-inline Tailwind alias timing, same-name CSS/Tailwind competitors and CSS-wide/registered values can require cascade/runtime evidence. These now return ambiguous/unsupported and block Theme projection rather than disappearing into semantic questions. Source order is recorded, not used as an across-file cascade approximation. Unknown-role aliases are no longer removed merely because their scalar source is shared. Primary and link remain distinct proposed roles even when both reference brand. Old source files and 005D experiments are preserved.
 
 References: [CSS variables resolve before inheritance](https://www.w3.org/TR/css-variables/#using-variables), [Tailwind inline references](https://tailwindcss.com/docs/theme#referencing-other-variables). Full CSS cascade, imports, DOM matching and dynamic themes remain out of scope.
+
+## Developer review report (005E)
+
+The existing JSON now exposes `review` with six review sections:
+
+- `discoveredSources`: exact declarations, literal/alias/derived kind, original location and selector/mode/ancestor context.
+- `resolvedAliases`: only supported resolved references, direct-to-terminal chains and canonical source. Chains longer than 32 steps use `continuesAt`; all original edges remain in `graph.resolutions`.
+- `semanticProposals`: source-linked role suggestions, explicitly `certainty: proposal`; `appliedModes` tells whether the Theme projection used that proposal. An available `editableVia` key accepts a reviewed `map:<source-id>` target or explicit ignore, including for previously automatic name rules. `blockedBy` explains why an unsupported proposal cannot be accepted as a semantic answer.
+- `requiredDecisions`: pending real decisions with source IDs, alias chain, proposed role/context, reason, possible actions and output impact. Answered decisions remain in `recordedDecisions`. `--prepare-answers` guidance references these exact records; existing answered keys remain valid.
+- `unsupportedExcluded`: reference failures, unsupported evaluation, explicit exclusions and non-blocking coverage limits are classified separately. A semantic answer cannot repair unsupported CSS context.
+- `outputImpact`: possible Theme target paths, CSS/Tailwind token names or explicitly marked wildcard families, DTCG paths, and the files blocked by each unresolved decision. An unmapped source has `unassigned` impact; token names are not invented. These are conditional projection descriptions, not complete downstream dependency or active UI usage proofs. Tailwind embeds the CSS output as well as its own namespace exports.
+
+All three outputs are atomic. Fix source/context blockers before completing missing Theme fields; filling answers does not make unsupported graph results pass. No accept-all mode, source edits or new interactive UI was introduced. The report is a developer review aid, not a novice UX or M3 product acceptance claim.

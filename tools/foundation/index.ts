@@ -43,3 +43,6 @@ export { createAnswersTemplate, writeAnswersTemplate } from "./answers.js";
 
 export { buildTokenGraph, redundantAliasIds } from "./graph.js";
 export type * from "./graph.js";
+
+export { createDiscoveryReview } from "./review.js";
+export type * from "./review.js";

@@ -4,12 +4,13 @@ import type { Analysis, Choice } from "./types.js";
 
 /** Empty required answers deliberately block replay until the user supplies a decision. */
 export function createAnswersTemplate(result: Analysis) {
+  const review = new Map(result.review.requiredDecisions.map(d => [d.id, d]));
   return {
     schemaVersion: 1,
     inputHash: result.inputHash,
     decisions: Object.fromEntries(result.manual_decisions.map((d) => [d.id, d.resolved ? d.resolution! : {} as Choice])),
     guidance: result.manual_decisions.filter((d) => !d.resolved).map(({id, reason, source, token, suggested, options}) =>
-      ({id, reason, source, token, suggested, options})),
+      ({id, reason, source, token, suggested, options, review: review.get(id)})),
     optionalProposals: result.proposed.filter((p) => p.classification !== "C" && !p.accepted),
   };
 }
