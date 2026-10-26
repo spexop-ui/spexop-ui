@@ -1,4 +1,4 @@
-import type { FoundValue, Location, Mode } from "./types.js";
+import type { FoundValue, Location, Mode } from "./source-types.js";
 export interface SemanticCandidate { target: string; status: "proposed"; evidence: "name-rule"; }
 export interface TokenContext { selector: string; mode: Mode | "shared"; origin: FoundValue["origin"]; ancestors: string[]; supported: boolean; sourceOrder: number; }
 export interface TokenNode {
