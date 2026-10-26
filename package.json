@@ -13,7 +13,8 @@
     "lint": "eslint packages/theme/src packages/theme/test tools/foundation --ignore-pattern 'tools/foundation/dist/**'",
     "test": "vitest run",
     "check": "pnpm build && pnpm typecheck && pnpm lint && pnpm test",
-    "foundation": "node tools/foundation/dist/cli.js"
+    "foundation": "node tools/foundation/dist/cli.js",
+    "foundation:review": "node tools/foundation/dist/integration/cli.js"
   },
   "devDependencies": {
     "typescript": "5.9.3",
