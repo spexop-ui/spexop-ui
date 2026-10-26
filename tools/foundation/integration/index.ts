@@ -57,7 +57,11 @@ export function reviewFoundation(options: CaptureOptions, planOptions: CSSPlanOp
       ...(plan.coverage.transformed ? ['Opt-in Tailwind literals become unlayered :root, :host variables; pruning, utilities and inline semantics are not reproduced. Review this context change manually.'] : []),
       'A successful preview or write is not application acceptance. Compare actual computed styles before keeping the integration.'
     ],
-    steps:[
+    steps:plan.status==='blocked' ? [
+      'STOP: no CSS can be generated in this scope. --allow-partial cannot override blockers or zero exportable declarations.',
+      'Inspect source-linked exclusion reasons and capture diagnostics in --json. Keep all source CSS and imports unchanged; do not write or integrate an artifact.',
+      'If the cause is unsupported syntax/context, report that limitation. Do not rewrite the app or remove files from analysis merely to improve coverage.'
+    ] : [
       'Inspect source paths, excluded reasons and selectors. Confirm the chosen CSS files are actually used by the application; discovery alone cannot prove this.',
       'Preview without writing. If partial, explicitly accept the listed exclusions only for a bounded experiment; never remove the source stylesheet.',
       'Write into a NEW directory only after review. Reuse explicit --css selections on later runs so generated CSS is not recaptured as a new source.',
