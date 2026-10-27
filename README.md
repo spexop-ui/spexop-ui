@@ -1,8 +1,10 @@
-# Spexop UI — OSS foundation consolidation
+# Spexop UI — Agent-native UI Verification
 
 Private engineering candidate. **No npm release or public launch has occurred.** Spexop is becoming one free open-source toolkit; there is no PRO/open-core split.
 
-Current implementation: `@spexop/theme` only, a pnpm + TypeScript workspace. Theme validation, token references, modern colors, light/dark CSS, Tailwind v4 output, DTCG 2025.10 subset and scoped contrast checks. See [package documentation](packages/theme/README.md), [migration](packages/theme/MIGRATION.md) and [file selection](provenance/theme-selection.json).
+The approved direction is Observe → Verify → Feedback → agent fixes → retest: inspect a running app in a real browser and return evidence-bearing deterministic findings. R1 is planned, not yet implemented. See [product direction](docs/product-direction.md), [architecture](docs/architecture.md), [roadmap](docs/roadmap.md) and [decision record](docs/adr/0001-agent-native-verification.md).
+
+Current implementation includes `@spexop/theme` and Foundation tools in a pnpm + TypeScript workspace. Theme validation, token references, modern colors, light/dark CSS, Tailwind v4 output, DTCG 2025.10 subset and scoped contrast checks. See [package documentation](packages/theme/README.md), [migration](packages/theme/MIGRATION.md) and [file selection](provenance/theme-selection.json).
 
 ## Verify
 
@@ -21,4 +23,4 @@ Only 15 explicitly selected MIT source files from packages commit `7741e1667d004
 
 Historical credential rotation, Nx/PRO distribution rights and unrelated icon/asset rights remain open. Selected-file checks authorize this private slice, not public distribution of every legacy source. Runtime dependency Color.js MIT notice is included; installed development dependencies are inventoried separately. Dev-tool binaries are not bundled in the Theme tarball.
 
-No other package skeletons, runtime verification, CLI/MCP, Figma integration, web deployment or publishing workflow are included. Basic package CI is not a Trusted Verification product gate. Next scope requires owner review after this slice.
+The existing Foundation CLI and capture, CSS export, build context and build evidence tools are documented under [tools/foundation](tools/foundation/README.md). The planned R1 browser verification loop and optional MCP adapter are not implemented. CSS Export and Build Evidence are preserved but are not on the R1 critical path. Basic package CI is not a Trusted Verification product gate.
