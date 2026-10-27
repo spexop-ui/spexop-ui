@@ -1,0 +1,25 @@
+name: Proposal
+description: Propose a bounded improvement for discussion
+body:
+  - type: markdown
+    attributes:
+      value: "A proposal is not accepted product scope. Do not include secrets, private project files, or provider credentials."
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: Who has this problem and what is the current behavior?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Proposed small scope
+      description: Include boundaries, relevant files or flows, and what is out of scope.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: How could we verify it?
+      description: Explain observable behavior and independent checks.
