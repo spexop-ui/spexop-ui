@@ -1,12 +1,9 @@
-# Verification architecture
+# Local companion architecture boundary
 
-The target flow is **Observe → Verify → Feedback → agent fixes → retest**. This is a direction, not a claim that the implementation exists.
+This is the owner-approved target, not an implemented system. The existing strong coding agent is the primary user interface and owns planning, architecture, UI/UX judgment, risk and oversight. Spexop exposes a small local handoff/evidence interface. Its desktop surface shows one active milestone, current task, gate state, progress, blocked reason and needs-user-action state.
 
-- **Observe:** connect to the user-specified running app, route and viewport; use a real browser to collect bounded runtime evidence. Record context and observation failures.
-- **Verify:** deterministic, explicitly scoped checks consume observations. Check definitions must distinguish an actionable finding from unsupported, indeterminate and execution error.
-- **Feedback:** structured, agent-readable output carries check identity, route, viewport, evidence and location where available, plus a human-readable explanation. Evidence should be sufficient to reproduce a finding without asserting an unverified source mapping.
-- **Retest:** compare compatible runs after the agent changes code; preserve run identity and explain changed scope, missing checks and uncertain results.
+The first slice has one local project, one active milestone, a minimal Gate/Task ledger, one connected user-supplied API worker and one main-agent interface. A task contract specifies allowed paths, requested UI behavior, run/budget limits, stop conditions and acceptance checks. Background scheduling starts only bounded work. Worker changes stay isolated and reviewable. Secrets remain local and redacted; permissions are explicit and scoped.
 
-The agent edits the application; Spexop does not silently apply fixes. A local entry point invokes the core. MCP is an optional adapter, not a separate source of verification truth. Browser screenshots and DOM/measurement data are evidence, not a visual taste model. Browser infrastructure and exact diagnostic rules are implementation choices to validate, not completed features.
+Verification is Observe → Verify → Feedback → main-agent fix or bounded worker retry → retest. Deterministic checks and real-browser Playwright, when required, bind outcomes to source revision, route, viewport, fixture, check version and artifact. Every check reports PASS, FAIL or UNKNOWN with reasons. Missing browser access, stale evidence, unsupported checks and incomplete runs cannot pass a gate. The ledger records evidence and acceptance authority separately.
 
-Existing Theme and Foundation tools remain separate assets. Canonical capture may supply contextual evidence when appropriate; CSS export, build context and build evidence retain their own documented boundaries. A build receipt, browser observation, source mapping, behavioral equivalence, independent verification and owner acceptance are distinct claims. No new renderer or app server lifecycle is required for R1.
+API availability, model cost/limits and handoff capabilities must be probed and reported as gaps. Do not create a general backend, chat IDE, cloud coordinator or broad multi-agent system to work around a gap. Existing Theme/Foundation assets may be reused under their provenance and license boundaries; CSS Export and Build Evidence are optional for R1. Their historical NO-GO findings remain intact.

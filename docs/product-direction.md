@@ -1,22 +1,19 @@
-# Product direction: Agent-native UI Verification
+# Product direction: local UI/UX companion
 
-Decision: 27 October 2026. Spexop UI is a free, open-source toolkit for checking an agent's UI work in a real browser and returning evidence the agent can use to fix it. The agent owns application code and fixes. Spexop observes the running UI, verifies supported deterministic checks, returns findings, and reruns the checks after changes. A successful check is evidence for its stated scope, not product acceptance or a guarantee of visual quality.
+Decision: 27 October 2026. This owner-approved decision supersedes the earlier verification-only direction in [ADR-023](adr/0001-agent-native-verification.md). Spexop is a local-first, free OSS desktop companion coordinating **UI/UX development**. The user's main conversation stays with an existing strong coding agent. That agent owns planning, architecture, design judgment, risky decisions and oversight. Spexop is a small execution and evidence loop, not another chat IDE or general PM/multi-agent platform.
 
-## R1: a small, honest verification loop
+## R1: one narrow end-to-end slice
 
-1. Connect to an already running application URL and inspect a specified route and viewport in a real browser.
-2. Run a bounded set of trustworthy deterministic UI diagnostics. Each check must define its inputs, applicability, evidence, and limitations; unsupported or failed observation must not become a pass.
-3. Return agent-readable findings with enough evidence to locate and understand the issue, including route, viewport, check, observed result and relevant element or measurement where available. Record run context and distinguish findings, errors and unknowns.
-4. The agent makes changes and explicitly reruns verification. Report whether previously observed findings recur or are resolved within the same comparable scope; do not infer a fix from a missing or failed check.
+One local project, one active milestone, minimal gates and tasks, one user-connected available free/low-cost LLM API worker, and one main-agent interface. Begin with one Button/Input/Select scenario. Expansion requires acceptance of this slice.
 
-A CLI or other direct local invocation can provide the loop; an MCP adapter is optional and must call the same verification core. Screenshots may support evidence but are not an aesthetic verdict. Observation is requested at checkpoints; there is no claim of continuous agent perception or automatic invocation.
+1. The main agent gives a bounded routine UI task with allowed files, expected behavior, budget and stop conditions. Spexop schedules background execution only within that scope. Worker changes are isolated and reviewable; workers cannot widen permissions or accept their own work.
+2. Spexop maintains minimal Milestone/Gate/Task status and an always-visible simple desktop view of progress, blocked reason and needs-user-action state.
+3. Deterministic checks independently verify output; use real-browser Playwright where rendered UI or interactions require it. Bind evidence to revision, environment, check and artifact. Report PASS, FAIL or UNKNOWN. Skipped, unsupported, stale or failed checks are UNKNOWN, never PASS.
+4. Gate-based acceptance compares evidence with explicit criteria. Escalate ambiguity, design judgment, risk and exceptions to the strong main agent or user. Worker completion, test PASS, browser observation, gate acceptance, product acceptance and release approval remain distinct.
+5. Report API gaps without building a general backend. Free models and their prices/availability are external conditions, not promises or mandatory dependencies.
 
-R1 excludes a new renderer, design-system generator, component library, visual aesthetic judge, AI API or SaaS dependency, mandatory CI blocker and premature file watcher. Starting or managing the application's server is not required. Authentication, route readiness, dynamic content, browser failures and environmental variation must be surfaced honestly. The exact first checks and evidence schema require implementation and evaluation; this decision does not claim they exist today.
+## Reuse and boundaries
 
-## Existing investment
+Preserve and reuse Theme, Canonical Model, Foundation Capture, provenance, CSS Export, Build Evidence and tests where useful. CSS Export and Build Evidence are not R1 prerequisites. Historical verification NO-GO evidence keeps its original scope. Protect secrets and local files with least privilege, scoped permissions and redacted logs. No mandatory paid API, cloud, SaaS, extra dashboard, new renderer or DS generator.
 
-Theme, Canonical Design Model, Foundation Capture, CSS Export, Build Context, Build Evidence, provenance and their tests remain intact. Capture and model data may inform later checks where useful, but are not prerequisites for the first browser loop. CSS Export and Build Evidence are off the R1 critical path; their existing limits and historical results remain valid within their original scopes. No source is removed by this decision.
-
-## Later, conditional directions
-
-R1.1 may explore project consistency after the R1 loop is useful and trustworthy, with explicit rules and false-positive evaluation. R2 may explore executable contracts after value, semantics and enforcement boundaries are demonstrated. Neither is an accepted implementation or release commitment. Protected CI and independent assurance remain separate potential work, not an R1 requirement. Public/npm release still requires the existing security, rights, provenance and owner gates.
+Observe → Verify → Feedback → agent fixes → retest remains a verification step inside this companion workflow, not the whole product. Project consistency and executable contracts remain conditional later research. Public repo, npm, deployment and release require separate security, rights, provenance and owner decisions.

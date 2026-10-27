@@ -1,18 +1,19 @@
-# ADR: Agent-native UI Verification
+# ADR-023: local UI/UX companion
 
 - Date: 2026-10-27
-- Status: Accepted product direction; implementation and release acceptance remain open.
+- Status: Owner-approved product direction; implementation, product acceptance and release acceptance open.
+- Revision: Owner supersession of the earlier agent-native UI verification-only proposal in Draft PR #12. Observe → Verify → Feedback → agent fixes → retest is retained as a verification subflow.
 
 ## Context
 
-The existing private repository contains Theme and Foundation work, including capture, CSS export and bounded build evidence. That work has useful tests and provenance but does not establish a working general UI verification product. The prior Foundation-first sequence made CSS transformation and source-to-browser evidence appear to block progress toward runtime verification.
+The private repository contains Theme and Foundation code, canonical capture, provenance, CSS Export, Build Evidence and tests. Prior M3 UX and source-to-browser provenance NO-GO evidence remains valid. The initial PR #12 described a browser verification toolkit; the owner then approved a broader but strictly UI/UX local companion coordinating inexpensive routine implementation and independent gate verification around an existing strong coding agent.
 
 ## Decision
 
-Spexop UI focuses on the Observe → Verify → Feedback → agent fixes → retest loop described in [product direction](../product-direction.md). R1 targets a running URL, route and viewport, real-browser observation, reliable deterministic diagnostics, evidence-bearing agent-readable findings and explicit rerun confirmation. MCP is optional. The agent remains responsible for fixing code.
+Adopt [product direction](../product-direction.md) and the [R1 slice](../roadmap.md): one local project, one active milestone, minimal gates/tasks, one connected available free/low-cost API worker and one main-agent interface. The main agent owns planning, architecture, design judgment, risk and oversight. Spexop schedules bounded background worker tasks in isolated scopes, independently checks outputs with deterministic tests and real-browser Playwright as required, records revision-bound PASS/FAIL/UNKNOWN evidence, enforces gate-based acceptance, escalates ambiguity and risk, and displays simple continuous desktop progress/blocked/needs-user-action status.
 
-Preserve existing Theme, canonical model, Foundation Capture, provenance and tests. CSS Export and Build Evidence leave the R1 critical path; their work and evidence are retained, with no change to their historical acceptance boundaries. No code is deleted by this decision. R1.1 project consistency and R2 executable contracts are conditional later directions.
+The first acceptance target is one Button/Input/Select end-to-end scenario. Report missing APIs without implementing a general backend. Free models are not guaranteed. No paid API, cloud or SaaS is mandatory. Protect secrets and permissions. Keep the user's main conversation with the existing coding agent; do not build another chat IDE or general PM/multi-agent platform.
 
-## Consequences
+## Consequences and evidence boundary
 
-Do not require a new renderer, DS generator, component library, aesthetic judge, AI API/SaaS, CI blocker or file watcher in R1. Do not equate a local run with independent acceptance, or a screenshot with an aesthetic assessment. The precise diagnostic set, error semantics, comparisons and validation plan remain to be designed and tested. Existing release/security/rights gates and owner authority remain in force. This decision supersedes the previous sequencing where Foundation/CSS source provenance blocked the initial runtime loop; it does not erase earlier ADRs or evidence.
+Reuse and preserve Theme, Canonical Model, Foundation Capture, provenance, CSS Export, Build Evidence and tests. CSS Export and Build Evidence are not R1 prerequisites. Worker completion, deterministic/browser PASS, gate acceptance, independent assurance, product acceptance and release approval are different states. Unknown or missing checks cannot be promoted to PASS. Historical 005I–005L/M3 NO-GO findings are preserved, not overturned by this decision. Public/npm/deploy/security/rights gates remain separate.
