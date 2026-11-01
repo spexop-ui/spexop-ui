@@ -7,11 +7,12 @@ export function notConfiguredWorker(): Worker {
 export function apiWorker(capability: Capability, request: (input: Parameters<Worker['execute']>[0]) => Promise<{
     requestId: string;
     changes: unknown;
+    usage?: WorkerOutput['usage'];
 }>): Worker {
     return { kind: 'api', capability: { ...capability }, execute: async (input): Promise<WorkerOutput> => {
             const response = await request(input);
             if (input.signal.aborted)
                 throw new Error('API request aborted');
-            return validateOutput(input.contract, { externalRunId: response.requestId, changes: response.changes });
+            return validateOutput(input.contract, { externalRunId: response.requestId, changes: response.changes, usage: response.usage });
         } };
 }
