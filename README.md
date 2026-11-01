@@ -4,13 +4,15 @@
 
 Your existing coding agent leads planning, design decisions, complex analysis, and risky work. Spexop is being built to coordinate bounded routine UI tasks through user-configured free or low-cost LLM API workers, check the results independently, and show simple local progress, blockers, and requests for user action. The software is free; provider API charges and data policies are separate and require user choice. There is no silent paid fallback.
 
+R1 starts with one local project and a Button/Input/Select flow. Internal technical verification and external product acceptance are separate gates: the latter requires a versioned private build installed in a separate consumer UI repository and a fresh coding-agent context. See [product direction](docs/product-direction.md), [architecture](docs/architecture.md), [roadmap](docs/roadmap.md), and [ADR-023](docs/adr/0023-local-ui-companion.md).
+
 ## Development status
 
-**Source availability is not a product release. There is no ready-to-install desktop app, verified live API worker, or public R1 release.** The current internal coordination prototype in [Draft PR #13](https://github.com/spexop-ui/spexop-ui/pull/13) uses test doubles and a loopback browser status panel. Its tests and real-browser checks support that limited technical claim. The Groq access [blocker #14](https://github.com/spexop-ui/spexop-ui/issues/14) remains open. External product acceptance, the M5 milestone, and release approval remain open. [Draft PR #12](https://github.com/spexop-ui/spexop-ui/pull/12) describes the product direction; neither draft is merged into `main`.
+**Source availability is not a product release. There is no ready-to-install desktop app, verified live API worker, or public R1 release.** The current internal coordination prototype in [Draft PR #13](https://github.com/spexop-ui/spexop-ui/pull/13) uses test doubles and a loopback browser status panel. Its tests and real-browser checks support that limited technical claim. The Groq SDK metadata access check passed; model inference and the product worker remain untested. See [resolved access issue #14](https://github.com/spexop-ui/spexop-ui/issues/14). External product acceptance, the M5 milestone, and release approval remain open.
 
 The current `main` branch contains `@spexop/theme` and Foundation engineering tools: Theme validation and output, Canonical Design Model work, Foundation Capture, provenance, CSS Export, Build Context, and Build Evidence. These are technical assets. They do not establish a finished companion, general CSS equivalence, or a published npm package. Design Contract remains experimental.
 
-See [product direction](https://github.com/spexop-ui/spexop-ui/blob/docs/agent-native-ui-verification/docs/product-direction.md), [architecture](https://github.com/spexop-ui/spexop-ui/blob/docs/agent-native-ui-verification/docs/architecture.md), and [roadmap](https://spexop.com/roadmap) for planned work. Plans and prototypes are identified as such.
+See [product direction](docs/product-direction.md), [architecture](docs/architecture.md), and [roadmap](https://spexop.com/roadmap) for planned work. Plans and prototypes are identified as such.
 
 ## Working with the source
 
@@ -28,6 +30,8 @@ For the Theme package, see [its documentation](packages/theme/README.md), [migra
 This repository imports an explicitly selected MIT-licensed Theme subset and separately developed Foundation work. It does not import old repository history or unresolved Nx/PRO and unrelated icon/asset candidates. The root [MIT license](LICENSE), package license, and [third-party notices](packages/theme/THIRD_PARTY_NOTICES.md) cover the included source and its documented runtime notice. Historical credential rotation and rights for excluded legacy sources remain open; this repository does not grant rights to publish those separate materials. See [provenance](provenance/README.md) for the current selection record.
 
 ## Contribute and report issues
+
+The existing Foundation CLI and capture, CSS export, build context and build evidence tools are documented under [tools/foundation](tools/foundation/README.md). Draft PR #13 provides only an internal simulated coordination slice. CSS Export and Build Evidence are preserved but are not on the R1 critical path. Historical M3 UX and source-to-browser NO-GO evidence remains open. Passing internal tests or package CI does not grant External Product Acceptance.
 
 We welcome bounded documentation, accessibility, and source contributions that can be reviewed independently. Start with [CONTRIBUTING.md](CONTRIBUTING.md), the [Code of Conduct](CODE_OF_CONDUCT.md), and an issue before larger changes. Please use [SECURITY.md](SECURITY.md) for vulnerabilities and never post keys, personal data, or private project files in public issues or pull requests. An issue label does not mean the desktop companion has shipped.
 
