@@ -6,7 +6,7 @@ Your existing coding agent leads planning, design decisions, complex analysis, a
 
 R1 starts with one local project and a Button/Input/Select flow. Internal technical verification and external product acceptance are separate gates: the latter requires a versioned private build installed in a separate consumer UI repository and a fresh coding-agent context. See [product direction](docs/product-direction.md), [architecture](docs/architecture.md), [roadmap](docs/roadmap.md), and [ADR-023](docs/adr/0023-local-ui-companion.md).
 
-Current work is tracked in the public [M5 milestone](https://github.com/spexop-ui/spexop-ui/milestone/1). The next bounded product-worker step is [issue #18](https://github.com/spexop-ui/spexop-ui/issues/18). Maintainers also use [Project #5](https://github.com/orgs/spexop-ui/projects/5) for execution tracking; the Engineering Master remains canonical.
+Current work is tracked in the public [M5 milestone](https://github.com/spexop-ui/spexop-ui/milestone/1). The next bounded product-worker step is [issue #18](https://github.com/spexop-ui/spexop-ui/issues/18). Maintainers also use [Project #5](https://github.com/orgs/spexop-ui/projects/5) for execution tracking; the Engineering Master remains canonical. Agents starting in this repository can use [AGENTS.md](AGENTS.md) to find the current work and evidence boundaries.
 
 ## Development status
 
