@@ -1,6 +1,6 @@
 # Groq synthetic Input benchmark — 2026-11-01
 
-Related: [issue #16](https://github.com/spexop-ui/spexop-ui/issues/16). This is a private, synthetic benchmark of one bounded worker task. It is not product worker integration or release acceptance.
+Related: [issue #16](https://github.com/spexop-ui/spexop-ui/issues/16). This synthetic benchmark was run privately; its sanitized fixture and evidence are now public. It is not product worker integration or release acceptance.
 
 ## Boundaries and setup
 
@@ -27,6 +27,6 @@ The Chrome checks used a fresh, isolated real Google Chrome session against the 
 
 `fixture/` is a standalone synthetic Vite app with exact dependency versions in `package.json`. From that directory, install dependencies with `npm install --ignore-scripts`, then run `npm run typecheck`, `npm run lint`, `npm run build`, and `npm run dev`. The supplied `src/Input.tsx` is the corrected candidate; replace it with `evidence/baseline-Input.tsx` to recover the initial fixture. Use the contract in `evidence/task-contract.json` for a new bounded model run. Such a run will be a new sample, not a replay of the original response.
 
-The local verification used Node 22.23.4, TypeScript 5.9.3, React 18.3.1, Vite 8.3.5, ESLint 10.13.0 and typescript-eslint 8.72.0. The standalone manifest was prepared after the run, and a fresh install of it was not completed in this session because package registry access stalled; the original checks used an existing local dependency tree. The repository does not include `node_modules`, credentials, raw provider responses, or a provider adapter.
+The local verification used Node 22.23.4, TypeScript 5.9.3, React 18.3.1, Vite 8.3.5, ESLint 10.13.0 and typescript-eslint 8.72.0. The standalone manifest was prepared after the run, and a fresh install of it was not completed in this session because package registry access stalled; the original checks used an existing local dependency tree. The repository does not include `node_modules`, credentials or raw provider responses. A separate bounded transport is being developed in [issue #18](https://github.com/spexop-ui/spexop-ui/issues/18); it was not part of this benchmark.
 
 This benchmark establishes that one real inference path responded and a corrected synthetic candidate passed the listed checks. It does not establish repeatability, provider availability, billing, product integration, G-VERIFY, G-EXTERNAL-ACCEPT, M5 or release acceptance. Any adapter decision requires a separate issue and additional evidence.
