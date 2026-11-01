@@ -1,0 +1,25 @@
+{
+  "taskId": "SYNTHETIC-INPUT-001",
+  "allowedFiles": [
+    "src/Input.tsx"
+  ],
+  "deliverable": "JSON object {\"files\":{\"src/Input.tsx\":\"complete source\"}} only, without markdown.",
+  "requirements": [
+    "Preserve InputProps public API and named Input export. Only edit src/Input.tsx; no dependencies, tools, network or other files.",
+    "Empty/whitespace value is optional: no error. Nonempty invalid email must show exactly \"Enter a valid email address.\" only after input blur.",
+    "Use validation /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/ on trimmed value. Initial render must not show an error even if value starts invalid.",
+    "Once blurred, invalid edits show error immediately; valid or empty edits clear it. Keep controlled onChange forwarding.",
+    "Use aria-invalid boolean and aria-describedby pointing to the visible error node only when error is visible. Error node role=alert and className=field-error; unique id derived from input id.",
+    "Disabled field never displays validation errors. Preserve label association, type=email, disabled and CSS class field. Reuse supplied CSS classes/tokens; no inline styles or hardcoded colors."
+  ],
+  "maxCorrectionAttempts": 1,
+  "timeoutSecondsPerRequest": 120,
+  "maxCompletionTokens": 3500,
+  "dataClassification": "new synthetic shareable source, no private project code",
+  "independentAcceptance": [
+    "typecheck",
+    "targeted lint",
+    "Vite build",
+    "real Chrome behavior checks"
+  ]
+}
