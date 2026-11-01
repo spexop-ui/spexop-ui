@@ -12,10 +12,14 @@ Related: [issue #18](https://github.com/spexop-ui/spexop-ui/issues/18), [draft P
 
 | Attempt | Adapter result | Provider-reported usage | Independent check |
 | --- | --- | --- | --- |
-| 1 | Bounded JSON replacement accepted for `src/Input.tsx`; request ID `chatcmpl-4b59ad63-8f17-4a40-a8b5-d18616c108ea` | 499 input, 1,276 output, 1,775 total tokens | Scope, typecheck and build passed. Lint failed: generated suppression named a React Hooks rule absent from the fixture. Chrome showed the error after invalid input and blur; the full disabled transition was not accepted. |
+| 1 | Bounded JSON replacement accepted for `src/Input.tsx`; request ID `chatcmpl-4b59ad63-8f17-4a40-a8b5-d18616c108ea` | 499 input, 1,276 output, 1,775 total tokens | Scope, typecheck and build passed. Lint failed: generated suppression named a React Hooks rule absent from the fixture. Chrome showed the error after invalid input and blur. A later focused transition check is recorded below. |
 | 2 | Adapter recorded `Worker call failed; isolated output ignored`; no accepted response or request ID | Unavailable | No candidate to check. The current safe error record does not distinguish HTTP failure, malformed/incomplete completion or transport failure. |
 
 The second attempt was prepared with only the independent failure feedback for the same reviewed task. Its safe record cannot prove whether the provider received it. Both reserved attempts are exhausted; there was no further attempt. The first candidate failed a required check, so this probe is **FAILED**, not verified. The existing [earlier benchmark](../groq-input-2026-11-01/README.md) also has a distinct disabled-state acceptance gap.
+
+### Focused Chrome transition check
+
+A separate local copy of the first candidate used [this toggleable parent harness](toggle-fixture-main.tsx) in place of the fixture's `src/main.tsx`; the generated `Input.tsx` was unchanged. In real Google Chrome, entering `invalid` and leaving the field showed the error. Checking **Disabled** removed the alert and disabled the field; unchecking it enabled the field without resurfacing the stale alert. The check observed the settled UI after each interaction; it cannot prove that no transient pre-effect frame appeared. It does not cure the independent lint failure or grant task acceptance.
 
 ## Next decision
 

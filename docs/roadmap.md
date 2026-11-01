@@ -1,6 +1,6 @@
 # Roadmap
 
-The 27 October 2026 owner decision is in [product direction](product-direction.md) and [ADR-023](adr/0023-local-ui-companion.md). These are targets, not implementation claims. Merged PR #13 contains an internal test-double coordination and loopback-panel prototype; the separate synthetic Groq benchmark in PR #17 has partial acceptance. A real product API worker, installable desktop build and external consumer acceptance remain open.
+The 27 October 2026 owner decision is in [product direction](product-direction.md) and [ADR-023](adr/0023-local-ui-companion.md). These are targets, not implementation claims. Merged PR #13 contains an internal test-double coordination and loopback-panel prototype; the separate synthetic Groq benchmark in PR #17 has partial acceptance. Draft PR #19 develops a bounded API transport; its first synthetic live probe failed independent acceptance. A verified product API worker, installable desktop build and external consumer acceptance remain open.
 
 ## Current tracking
 

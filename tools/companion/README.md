@@ -45,7 +45,13 @@ the exact task contract; changing its instruction, source or limits requires a n
 approval. Do not enable a real call merely because the offline transport tests pass.
 
 Offline transport tests exercise the coordinator without a real provider call.
-No authorized live product run or external consumer acceptance is recorded here.
+The [synthetic live probe](../../docs/benchmarks/r1-input-live-2026-11-01/README.md)
+failed independent acceptance; it is separate from a product workflow. A
+[reviewed synthetic local caller](../../examples/companion-api-worker/README.md)
+now binds the adapter to this coordinator, fixed deterministic checks and a
+revision-bound Chrome receipt. Its preflight has no provider request, and its
+offline transport smoke leaves browser evidence UNKNOWN. No authorized live
+product run or external consumer acceptance is recorded here.
 An API task reaching `VERIFIED` means only its independent local criteria passed;
 it does not grant M5, desktop, product or release acceptance.
 
