@@ -1,6 +1,6 @@
 # Small local companion loop
 
-Owner-approved direction: ADR-023 / Draft PR #12. This module coordinates one local
+Owner-approved direction: ADR-023 / merged PR #12. This module coordinates one local
 UI task. It is not a general scheduler, chat IDE or product acceptance authority.
 
 - KEEP: worker boundary, allowed-file validation, independent evidence, revision IDs,
