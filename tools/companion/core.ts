@@ -3,6 +3,10 @@ import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 export type Result = 'PASS' | 'FAIL' | 'UNKNOWN';
 export type Phase = 'PREPARING' | 'READY' | 'RUNNING' | 'BLOCKED' | 'FAILED' | 'RETRYING' | 'UNVERIFIED' | 'VERIFIED' | 'TESTED';
+/** Adapter-owned failure code. Only short fixed codes may enter the local journal. */
+export class SafeWorkerError extends Error {
+    constructor(readonly code: string) { super('Worker failure'); }
+}
 export interface Contract {
     schemaVersion: 'r1.1';
     taskId: string;
@@ -251,9 +255,10 @@ export async function run(s: State, worker: Worker, save: (state: State) => void
         s.revision = a.revision;
         transition(s, 'UNVERIFIED', 'Worker output needs independent checks', true);
     }
-    catch {
+    catch (error) {
         a.result = 'FAIL';
-        a.reason = controller.signal.aborted ? 'Worker timeout; isolated output ignored' : responseReceived ? 'Output paths/content outside contract; isolated output ignored' : 'Worker call failed; isolated output ignored';
+        const safeCode = error instanceof SafeWorkerError && /^[A-Z0-9_]{1,32}$/.test(error.code) ? ` (${error.code})` : '';
+        a.reason = controller.signal.aborted ? 'Worker timeout; isolated output ignored' : responseReceived ? 'Output paths/content outside contract; isolated output ignored' : `Worker call failed${safeCode}; isolated output ignored`;
         transition(s, 'FAILED', a.reason + '; review before retry', true);
     }
     finally {

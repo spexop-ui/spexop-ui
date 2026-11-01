@@ -1,5 +1,5 @@
 import { apiWorker } from './provider.js';
-import type { Contract, Worker, WorkerOutput } from './core.js';
+import { SafeWorkerError, type Contract, type Worker, type WorkerOutput } from './core.js';
 import { createHash } from 'node:crypto';
 
 const ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
@@ -105,27 +105,39 @@ export function groqWorker(options: GroqWorkerOptions): Worker {
             max_completion_tokens: input.contract.maxOutputTokens,
             stream: false,
         });
-        const response = await transport(ENDPOINT, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-            body: request,
-            signal: input.signal,
-            redirect: 'error',
-            cache: 'no-store',
-        });
+        let response: Response;
+        try {
+            response = await transport(ENDPOINT, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                body: request,
+                signal: input.signal,
+                redirect: 'error',
+                cache: 'no-store',
+            });
+        }
+        catch {
+            throw new SafeWorkerError('TRANSPORT');
+        }
         if (!response.ok)
-            throw new Error(`Groq request failed (HTTP ${response.status})`);
-        const envelope = await limitedJson(response) as Record<string, unknown>;
+            throw new SafeWorkerError(`HTTP_${response.status}`);
+        let envelope: Record<string, unknown>;
+        try {
+            envelope = await limitedJson(response) as Record<string, unknown>;
+        }
+        catch {
+            throw new SafeWorkerError('RESPONSE_INVALID');
+        }
         const choice = (envelope.choices as { finish_reason?: unknown; message?: { content?: unknown } }[] | undefined)?.[0];
         const usage = envelope.usage as { prompt_tokens?: unknown; completion_tokens?: unknown; total_tokens?: unknown } | undefined;
         if (choice?.finish_reason !== 'stop' || typeof choice.message?.content !== 'string' || typeof envelope.id !== 'string' || !usage || !Number.isSafeInteger(usage.prompt_tokens) || !Number.isSafeInteger(usage.completion_tokens) || !Number.isSafeInteger(usage.total_tokens) || (usage.completion_tokens as number) > input.contract.maxOutputTokens!)
-            throw new Error('Groq completion incomplete or missing usage');
+            throw new SafeWorkerError('COMPLETION_INCOMPLETE');
         let output: unknown;
         try {
             output = JSON.parse(choice.message.content);
         }
         catch {
-            throw new Error('Groq completion is not JSON');
+            throw new SafeWorkerError('COMPLETION_INVALID_JSON');
         }
         const changes = (output as { changes?: unknown } | null)?.changes;
         return {

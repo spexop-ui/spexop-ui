@@ -160,8 +160,33 @@ describe('bounded Groq product transport (offline)', () => {
             const second = createState(f.contract);
             await run(second, denied);
             expect(second.phase).toBe('FAILED');
+            expect(second.attempts[0].reason).toContain('HTTP_403');
             expect(JSON.stringify(second)).not.toContain('sensitive provider detail');
             expect(JSON.stringify(second)).not.toContain('test-only-key');
+        }
+        finally {
+            f.cleanup();
+        }
+    });
+
+    it.each([
+        { name: 'transport', response: async () => { throw new Error('sensitive network detail'); }, code: 'TRANSPORT' },
+        { name: 'incomplete completion', response: async () => new Response(JSON.stringify({ id: 'run', choices: [{ finish_reason: 'length', message: { content: '{}' } }], usage: { prompt_tokens: 10, completion_tokens: 20, total_tokens: 30 } }), { status: 200 }), code: 'COMPLETION_INCOMPLETE' },
+        { name: 'invalid JSON envelope', response: async () => new Response('sensitive invalid body', { status: 200 }), code: 'RESPONSE_INVALID' },
+    ])('records only a safe $name failure code', async ({ response, code }) => {
+        const f = fixture();
+        try {
+            const state = createState(f.contract);
+            const worker = groqWorker({
+                apiKey: 'test-only-key', model: 'openai/gpt-oss-120b', accessVerified: true, costApproved: true,
+                observedAt: '2026-11-01T00:00:00Z', approval: f.approval,
+                fetchImpl: response,
+            });
+            await run(state, worker);
+            expect(state.phase).toBe('FAILED');
+            expect(state.attempts[0].reason).toContain(code);
+            expect(JSON.stringify(state)).not.toContain('sensitive');
+            expect(JSON.stringify(state)).not.toContain('test-only-key');
         }
         finally {
             f.cleanup();
