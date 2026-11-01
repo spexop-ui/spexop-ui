@@ -24,3 +24,16 @@ A separate local copy of the first candidate used [this toggleable parent harnes
 ## Next decision
 
 This probe revealed that the prior failure journal hid the failure class. PR #19 now adds fixed, redacted adapter failure codes for **future** attempts and offline tests for HTTP, transport, incomplete completion and invalid response; it cannot retroactively diagnose attempt 2. Review the disabled-state browser scenario with a fixture that can toggle the parent prop, then decide whether a separately approved new bounded sample is useful. Keep #18 and G-VERIFY open; a synthetic probe cannot grant external product or release acceptance.
+
+## Separate approved probe: R1-INPUT-LIVE-002
+
+The owner separately approved a new two-request limit for the same public synthetic 479-byte `Input.tsx` baseline. This is a distinct task contract (`43070f0fefbe4666fe97c1cc9775bbec491c16a4ea0ffdb10d8823eb2cde7177`) and does not extend the earlier probe's authorization. The task required optional empty or whitespace input, error updates after blur, a disabled-state transition, a boolean `aria-invalid`, and consistent alert association. The model and per-request limits remained `openai/gpt-oss-120b`, 3,500 completion tokens and 60 seconds. No paid fallback or application source was used.
+
+| Attempt | Observed adapter result | Independent result |
+| --- | --- | --- |
+| 1 | `HTTP_400`; no accepted candidate, usage or request ID. The safe journal does not identify the cause. | No candidate to verify. |
+| 2 | After switching this model to Groq's documented strict JSON Schema response format, one in-scope `src/Input.tsx` replacement was accepted. Request ID `chatcmpl-9315ac3b-6867-4b29-98a4-20c27a7b53f3`; provider usage 625 input, 1,684 output, 2,309 total tokens. | Scope, typecheck, lint and build passed in the isolated candidate. The required behavior failed independent source review: whitespace-only input is treated as invalid (`val === ''` is the only optional case), and `aria-invalid` is omitted rather than boolean when there is no error. Chrome displayed the invalid email alert after blur, but the complete browser acceptance scenario was not established. |
+
+The candidate inventory revision was `3b43e493b98755d9f7e5f634137ee593e49d707c24865f610da0dd26be34667c`; only `src/Input.tsx` differed from the approved baseline. The candidate stayed outside the repository. The local task journal records **FAILED** for the required browser/behavior gate, with two of two attempts consumed. The strict schema change is a transport improvement observed to return one valid response on attempt 2; it does not establish why attempt 1 returned HTTP 400 or prove general provider reliability. No third request was sent.
+
+Issue #18, G-VERIFY, external product acceptance and release acceptance remain open. A future worker task needs a separately approved budget and an independently passing candidate; this failed generated file must not be treated as accepted product code.

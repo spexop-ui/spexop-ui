@@ -66,6 +66,19 @@ describe('bounded Groq product transport (offline)', () => {
             expect(fs.readFileSync(path.join(result.candidates[0].directory, 'Input.tsx'), 'utf8')).toContain('aria-label');
             expect(sent?.url).toBe('https://api.groq.com/openai/v1/chat/completions');
             expect(sent?.body.max_completion_tokens).toBe(2048);
+            expect(sent?.body.response_format).toEqual({
+                type: 'json_schema',
+                json_schema: {
+                    name: 'bounded_ui_changes', strict: true,
+                    schema: {
+                        type: 'object',
+                        properties: {
+                            changes: { type: 'array', items: { type: 'object', properties: { path: { type: 'string', enum: ['Input.tsx'] }, content: { type: 'string' } }, required: ['path', 'content'], additionalProperties: false } },
+                        },
+                        required: ['changes'], additionalProperties: false,
+                    },
+                },
+            });
             expect(sent?.authorization).toBe('Bearer test-only-key');
             expect(JSON.stringify(state)).not.toContain('test-only-key');
             expect(JSON.stringify(sent?.body)).not.toContain(f.projectRoot);
