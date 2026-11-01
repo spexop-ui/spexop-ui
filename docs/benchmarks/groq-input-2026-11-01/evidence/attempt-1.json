@@ -1,0 +1,25 @@
+{
+  "state": "RECEIVED",
+  "at": "2026-11-01T13:09:41.468Z",
+  "latencyMs": 4018,
+  "model": "openai/gpt-oss-120b",
+  "sdk": "groq-sdk@1.6.0",
+  "requestId": "chatcmpl-d8956eb1-c6a4-4a6d-9cae-6ef9fc215b57",
+  "usage": {
+    "queue_time": 0.048880996,
+    "prompt_tokens": 755,
+    "prompt_time": 0.031022258,
+    "completion_tokens": 1402,
+    "completion_time": 2.8813176069999997,
+    "total_tokens": 2157,
+    "total_time": 2.912339865,
+    "completion_tokens_details": {
+      "reasoning_tokens": 934
+    }
+  },
+  "finishReason": "stop",
+  "modelListed": true,
+  "scopePass": true,
+  "requestSha256": "cac1767902ad26c656ab4dd4d133b369ec7758b993c4a858ae26fb8bbd1de49f",
+  "candidateSha256": "b0e4efce6339ab30ea16821a595d88660f3907b72734e418dbb04dd6c068ca59"
+}

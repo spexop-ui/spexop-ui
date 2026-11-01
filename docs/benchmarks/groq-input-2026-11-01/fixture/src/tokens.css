@@ -1,0 +1,6 @@
+ :root { --field-border: #64748b; --field-error: #b91c1c; --field-focus: #2563eb; --field-space: 8px; --field-radius: 6px; }
+.field { display:grid;gap:var(--field-space);max-width:360px;margin:24px; }
+input { border:1px solid var(--field-border);border-radius:var(--field-radius);padding:var(--field-space); }
+input:focus-visible { outline:2px solid var(--field-focus);outline-offset:2px; }
+input[aria-invalid="true"] { border-color:var(--field-error); }
+.field-error { color:var(--field-error);margin:0; }
