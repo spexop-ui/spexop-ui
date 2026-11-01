@@ -6,6 +6,8 @@ Your existing coding agent leads planning, design decisions, complex analysis, a
 
 R1 starts with one local project and a Button/Input/Select flow. Internal technical verification and external product acceptance are separate gates: the latter requires a versioned private build installed in a separate consumer UI repository and a fresh coding-agent context. See [product direction](docs/product-direction.md), [architecture](docs/architecture.md), [roadmap](docs/roadmap.md), and [ADR-023](docs/adr/0023-local-ui-companion.md).
 
+Current work is tracked in the public [M5 milestone](https://github.com/spexop-ui/spexop-ui/milestone/1). The next bounded product-worker step is [issue #18](https://github.com/spexop-ui/spexop-ui/issues/18). Maintainers also use [Project #5](https://github.com/orgs/spexop-ui/projects/5) for execution tracking; the Engineering Master remains canonical.
+
 ## Development status
 
 **Public source is not a product release. There is no ready-to-install desktop app, verified product API worker, or public R1 release.** The internal coordination prototype merged in [PR #13](https://github.com/spexop-ui/spexop-ui/pull/13) uses test doubles and a loopback browser status panel. Its tests and real-browser checks support that limited technical claim. [PR #17](https://github.com/spexop-ui/spexop-ui/pull/17) records one real Groq inference and correction on a separate synthetic Input fixture with **partial** acceptance; it is not integrated into the product worker. See the [benchmark evidence](docs/benchmarks/groq-input-2026-11-01/README.md). External product acceptance, the M5 milestone, and release approval remain open.
