@@ -8,13 +8,14 @@
     "node": ">=22.13 <27"
   },
   "scripts": {
-    "build": "pnpm --filter @spexop/theme build && tsc -p tools/foundation/tsconfig.json",
-    "typecheck": "tsc --noEmit -p packages/theme/tsconfig.json && tsc -p tools/foundation/tsconfig.check.json",
-    "lint": "eslint packages/theme/src packages/theme/test tools/foundation --ignore-pattern 'tools/foundation/dist/**'",
+    "build": "pnpm --filter @spexop/theme build && tsc -p tools/foundation/tsconfig.json && tsc -p tools/companion/tsconfig.json",
+    "typecheck": "tsc --noEmit -p packages/theme/tsconfig.json && tsc -p tools/foundation/tsconfig.check.json && tsc -p tools/companion/tsconfig.check.json",
+    "lint": "eslint packages/theme/src packages/theme/test tools/foundation --ignore-pattern 'tools/foundation/dist/**' tools/companion --ignore-pattern 'tools/companion/dist/**'",
     "test": "vitest run",
     "check": "pnpm build && pnpm typecheck && pnpm lint && pnpm test",
     "foundation": "node tools/foundation/dist/cli.js",
-    "foundation:review": "node tools/foundation/dist/integration/cli.js"
+    "foundation:review": "node tools/foundation/dist/integration/cli.js",
+    "companion:status": "node tools/companion/dist/panel.js"
   },
   "devDependencies": {
     "typescript": "5.9.3",
