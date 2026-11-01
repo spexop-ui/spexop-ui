@@ -3,6 +3,10 @@ import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 export type Result = 'PASS' | 'FAIL' | 'UNKNOWN';
 export type Phase = 'PREPARING' | 'READY' | 'RUNNING' | 'BLOCKED' | 'FAILED' | 'RETRYING' | 'UNVERIFIED' | 'VERIFIED' | 'TESTED';
+/** Adapter-owned failure code. Only short fixed codes may enter the local journal. */
+export class SafeWorkerError extends Error {
+    constructor(readonly code: string) { super('Worker failure'); }
+}
 export interface Contract {
     schemaVersion: 'r1.1';
     taskId: string;
@@ -16,6 +20,8 @@ export interface Contract {
     maxAttempts: number;
     timeoutMs: number;
     maxOutputBytes: number;
+    /** Required by a real API worker; legacy test-double contracts may omit it. */
+    maxOutputTokens?: number;
 }
 export interface Check {
     criterion: string;
@@ -39,10 +45,13 @@ export interface WorkerOutput {
         path: string;
         content: string;
     }[];
+    usage?: { inputTokens: number; outputTokens: number; totalTokens: number };
 }
 export interface Worker {
     kind: 'api' | 'test-double';
     capability: Capability;
+    /** Optional caller approval check; runs before an attempt is recorded or any transport starts. */
+    preflight?: (contract: Readonly<Contract>) => boolean;
     execute: (input: {
         contract: Readonly<Contract>;
         files: Readonly<Record<string, string>>;
@@ -61,6 +70,7 @@ export interface Attempt {
     revision?: string;
     result: Result;
     reason: string;
+    usage?: WorkerOutput['usage'];
 }
 export interface State {
     schemaVersion: 'r1.1';
@@ -84,7 +94,7 @@ const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 const now = () => new Date().toISOString();
 function transition(s: State, phase: Phase, message: string, user = false) { s.phase = phase; s.message = message; s.needsUserAction = user; s.history.push({ at: now(), phase, message }); }
 function validateContract(c: Contract) {
-    if (c.schemaVersion !== 'r1.1' || !c.taskId || !c.milestoneId || !path.isAbsolute(c.projectRoot) || !c.baseRevision || !c.instruction || !c.allowedFiles.length || c.allowedFiles.length > 10 || new Set(c.allowedFiles).size !== c.allowedFiles.length || c.allowedFiles.some(f => !safe(f) || !/^[a-f0-9]{64}$/.test(c.sourceHashes[f] ?? '')) || !c.criteria.length || new Set(c.criteria).size !== c.criteria.length || c.maxAttempts < 1 || c.maxAttempts > 2 || !Number.isInteger(c.maxAttempts) || c.timeoutMs < 1 || c.timeoutMs > 60000 || c.maxOutputBytes < 1 || c.maxOutputBytes > 65536)
+    if (c.schemaVersion !== 'r1.1' || !c.taskId || !c.milestoneId || !path.isAbsolute(c.projectRoot) || !c.baseRevision || !c.instruction || !c.allowedFiles.length || c.allowedFiles.length > 10 || new Set(c.allowedFiles).size !== c.allowedFiles.length || c.allowedFiles.some(f => !safe(f) || !/^[a-f0-9]{64}$/.test(c.sourceHashes[f] ?? '')) || !c.criteria.length || new Set(c.criteria).size !== c.criteria.length || c.maxAttempts < 1 || c.maxAttempts > 2 || !Number.isInteger(c.maxAttempts) || c.timeoutMs < 1 || c.timeoutMs > 60000 || c.maxOutputBytes < 1 || c.maxOutputBytes > 65536 || (c.maxOutputTokens !== undefined && (!Number.isInteger(c.maxOutputTokens) || c.maxOutputTokens < 1 || c.maxOutputTokens > 8192)))
         throw new Error('Invalid task contract');
 }
 function assertContract(s: State) { validateContract(s.contract); if (hash(JSON.stringify(s.contract)) !== s.contractHash)
@@ -131,7 +141,8 @@ export function validateOutput(c: Contract, value: unknown): WorkerOutput {
     if (!value || typeof value !== 'object')
         throw new Error('Invalid worker output');
     const v = value as WorkerOutput;
-    if (typeof v.externalRunId !== 'string' || !v.externalRunId.trim() || v.externalRunId.length > 200 || !Array.isArray(v.changes) || !v.changes.length || v.changes.length > c.allowedFiles.length || new Set(v.changes.map(x => x.path)).size !== v.changes.length || v.changes.some(x => !x || typeof x.path !== 'string' || !safe(x.path) || !c.allowedFiles.includes(x.path) || typeof x.content !== 'string') || Buffer.byteLength(JSON.stringify(v)) > c.maxOutputBytes)
+    const usage = v.usage;
+    if (typeof v.externalRunId !== 'string' || !v.externalRunId.trim() || v.externalRunId.length > 200 || !Array.isArray(v.changes) || !v.changes.length || v.changes.length > c.allowedFiles.length || new Set(v.changes.map(x => x.path)).size !== v.changes.length || v.changes.some(x => !x || typeof x.path !== 'string' || !safe(x.path) || !c.allowedFiles.includes(x.path) || typeof x.content !== 'string') || (usage !== undefined && (!usage || !Number.isSafeInteger(usage.inputTokens) || !Number.isSafeInteger(usage.outputTokens) || !Number.isSafeInteger(usage.totalTokens) || usage.inputTokens < 0 || usage.outputTokens < 0 || usage.totalTokens < usage.inputTokens + usage.outputTokens)) || Buffer.byteLength(JSON.stringify(v)) > c.maxOutputBytes)
         throw new Error('Invalid or out-of-scope worker output');
     return clone(v);
 }
@@ -186,8 +197,18 @@ export async function run(s: State, worker: Worker, save: (state: State) => void
     if (s.phase === 'RUNNING' || s.phase === 'VERIFIED' || s.phase === 'TESTED')
         throw new Error('Task already running or verified');
     const cap = worker.capability;
-    if (cap.status !== 'READY' || !cap.accessVerified || !cap.costApproved || !cap.provider || !cap.model || !cap.observedAt) {
+    if (cap.status !== 'READY' || cap.accessVerified !== true || cap.costApproved !== true || !cap.provider || !cap.model || !cap.observedAt) {
         transition(s, 'BLOCKED', cap.status === 'NOT_CONFIGURED' ? 'API worker NOT_CONFIGURED' : 'Provider access/model/cost not verified; no execution', true);
+        save(s);
+        return { state: s };
+    }
+    if (worker.kind === 'api' && !s.contract.maxOutputTokens) {
+        transition(s, 'BLOCKED', 'API token limit missing from task contract; no execution', true);
+        save(s);
+        return { state: s };
+    }
+    if (worker.preflight && !worker.preflight(s.contract)) {
+        transition(s, 'BLOCKED', 'Task approval does not cover source or budget; no execution', true);
         save(s);
         return { state: s };
     }
@@ -226,15 +247,18 @@ export async function run(s: State, worker: Worker, save: (state: State) => void
         const output = validateOutput(s.contract, response);
         accepted = output;
         a.externalRunId = output.externalRunId;
+        if (output.usage)
+            a.usage = output.usage;
         a.revision = patchRevision(s.contract, output);
         a.result = 'PASS';
         a.reason = 'Output scope checked; independent acceptance pending';
         s.revision = a.revision;
         transition(s, 'UNVERIFIED', 'Worker output needs independent checks', true);
     }
-    catch {
+    catch (error) {
         a.result = 'FAIL';
-        a.reason = controller.signal.aborted ? 'Worker timeout; isolated output ignored' : responseReceived ? 'Output paths/content outside contract; isolated output ignored' : 'Worker call failed; isolated output ignored';
+        const safeCode = error instanceof SafeWorkerError && /^[A-Z0-9_]{1,32}$/.test(error.code) ? ` (${error.code})` : '';
+        a.reason = controller.signal.aborted ? 'Worker timeout; isolated output ignored' : responseReceived ? 'Output paths/content outside contract; isolated output ignored' : `Worker call failed${safeCode}; isolated output ignored`;
         transition(s, 'FAILED', a.reason + '; review before retry', true);
     }
     finally {
@@ -285,4 +309,4 @@ export function restore(file: string): State {
 }
 export function milestoneExit(criteria: Record<string, Result>, blocked = false): Result | 'BLOCKED' { const values = Object.values(criteria); if (!values.length)
     return blocked ? 'BLOCKED' : 'UNKNOWN'; return values.includes('FAIL') ? 'FAIL' : blocked ? 'BLOCKED' : values.every(v => v === 'PASS') ? 'PASS' : 'UNKNOWN'; }
-export function statusView(s: State) { const exit = taskExit(s); return { task: s.contract.taskId, milestone: s.contract.milestoneId, phase: s.phase, revision: s.revision, executionKind: s.attempts.at(-1)?.kind ?? 'not-started', attemptCount: s.attempts.length, attemptLimit: s.contract.maxAttempts, taskExit: exit, needsUserAction: s.needsUserAction, message: s.message, history: s.history.slice(-10), productAcceptance: 'NOT_GRANTED', releaseApproval: 'NOT_GRANTED' }; }
+export function statusView(s: State) { const exit = taskExit(s); return { task: s.contract.taskId, milestone: s.contract.milestoneId, phase: s.phase, revision: s.revision, executionKind: s.attempts.at(-1)?.kind ?? 'not-started', attemptCount: s.attempts.length, attemptLimit: s.contract.maxAttempts, usage: s.attempts.at(-1)?.usage ?? null, taskExit: exit, needsUserAction: s.needsUserAction, message: s.message, history: s.history.slice(-10), productAcceptance: 'NOT_GRANTED', releaseApproval: 'NOT_GRANTED' }; }

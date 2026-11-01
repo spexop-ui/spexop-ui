@@ -10,6 +10,6 @@ Before proposing or changing work:
 
 The roadmap describes direction, the milestone groups repository issues and PRs, and each issue defines a bounded task. An item can appear in both the milestone and Project. Historical notes and closed work remain evidence, not current status.
 
-Keep claims separate: PR #13 is an internal test-double prototype; PR #17 is a separate synthetic Groq benchmark with partial acceptance. G-VERIFY, G-EXTERNAL-ACCEPT, packaged desktop, product worker integration and release approval remain open. Do not claim an npm or product release from tests or public source availability.
+Keep claims separate: PR #13 is an internal test-double prototype; PR #17 is a separate synthetic Groq benchmark with partial acceptance. Draft PR #19 develops the bounded API transport; its owner-authorized synthetic live probe failed independent acceptance. G-VERIFY, G-EXTERNAL-ACCEPT, packaged desktop, verified product worker integration and release approval remain open. Do not claim an npm or product release from tests or public source availability.
 
 Use only the task's authorized scope. Do not put credentials, private project content, customer data or unlicensed assets into public issues, PRs or source. Do not activate GitHub Actions or Copilot review, make provider transactions, publish packages or change release visibility without a separate owner decision.
